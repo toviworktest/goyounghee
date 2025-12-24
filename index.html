@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고양이 진화 시뮬레이터 PRO - 글로벌 명예의 전당</title>
+    <title>고양이 진화 시뮬레이터 PRO - 글로벌 & 개인 랭킹</title>
     <style>
         :root {
             --common: #b2bec3; --uncommon: #00cec9; --rare: #a29bfe; --legendary: #fab1a0; --mythic: #ff7675;
@@ -12,71 +12,41 @@
         body { font-family: 'Pretendard', sans-serif; background-color: #0d0d0d; color: #eee; margin: 0; padding: 10px; overflow-x: hidden; }
         .game-container { width: 100%; max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
         
-        /* 레이아웃 구성 */
         .top-section { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 10px; }
         .left-column { display: flex; flex-direction: column; gap: 10px; }
-        
-        .cat-view { 
-            height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            border: 2px solid #333; border-radius: 12px 12px 0 0; background: radial-gradient(circle, #222 0%, #000 100%); position: relative;
-            transition: 0.3s;
-        }
-        
-        /* 애니메이션 */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); } 20% { transform: translate(-3px, 0px) rotate(-1deg); }
-            40% { transform: translate(3px, 2px) rotate(1deg); } 60% { transform: translate(-1px, -1px) rotate(0deg); }
-            80% { transform: translate(3px, 1px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(0deg); }
-        }
-        .anim-shake { animation: shake 0.5s; }
-        @keyframes success-glow {
-            0% { box-shadow: 0 0 5px var(--success-color); } 50% { box-shadow: 0 0 25px var(--success-color); } 100% { box-shadow: 0 0 5px var(--success-color); }
-        }
-        .anim-success { animation: success-glow 0.8s; border-color: var(--success-color) !important; }
-
+        .cat-view { height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid #333; border-radius: 12px 12px 0 0; background: radial-gradient(circle, #222 0%, #000 100%); position: relative; transition: 0.3s; }
         .nyang-bar { background: #222; border: 2px solid #333; border-top: none; padding: 10px; text-align: center; border-radius: 0 0 12px 12px; color: #ffd700; font-weight: bold; font-size: 1.1rem; }
-        
-        /* 로그 영역 (빨간 상자 위치) */
         .in-game-log { height: 160px; background: #0a0a0a; border: 2px solid #e74c3c; border-radius: 12px; padding: 10px; font-size: 0.75rem; overflow-y: auto; color: #aaa; line-height: 1.5; }
         
-        .status-window { background: #1a1a1a; padding: 8px; border: 1px solid #333; border-radius: 8px; font-size: 0.7rem; display: flex; flex-direction: column; gap: 4px; }
-        .status-row { display: flex; justify-content: space-between; border-bottom: 1px solid #222; padding: 2px 0; }
-        
-        .unified-gauge-container { margin: 8px 0; background: #111; padding: 8px; border-radius: 8px; border: 1px solid #333; }
-        .unified-gauge { width: 100%; height: 16px; background: #333; border-radius: 8px; display: flex; overflow: hidden; }
-        .gauge-segment { height: 100%; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-
+        /* 버튼 스타일 */
         .btn-stack { display: flex; flex-direction: column; gap: 6px; }
         button { padding: 12px 5px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; }
+        .btn-evolve { background: #6c5ce7; color: white; }
         .btn-buy { background: #2ecc71; color: white; }
         .btn-adopt { background: #f1c40f; color: #333; }
-        .btn-evolve { background: #6c5ce7; color: white; }
-        .btn-gene { background: #444; color: #888; }
-        .btn-gene.active { background: #d63031; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
         
-        button:disabled { opacity: 0.2; filter: grayscale(1); cursor: not-allowed; }
+        /* 랭킹 슬롯 디자인 */
+        .rank-slot { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .rank-slot:active { transform: scale(0.98); }
+        .world-best-slot { border: 2px solid #ffd700 !important; background: linear-gradient(145deg, #1e272e, #000); box-shadow: 0 0 15px rgba(255,215,0,0.2); margin-top: 5px; }
 
-        /* 닉네임 모달 */
-        #nick-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .nick-box { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 2px solid #e74c3c; text-align: center; width: 80%; max-width: 350px; }
-        .nick-input { width: 90%; padding: 12px; margin-top: 15px; background: #000; border: 1px solid #444; color: white; border-radius: 5px; text-align: center; font-size: 1.1rem; }
-
-        /* 글로벌 랭킹 슬롯 */
-        .rank-one-slot { border: 2px solid #ffd700 !important; background: linear-gradient(145deg, #1e272e, #000); border-radius: 12px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; margin-top: 5px; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
-
-        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d0d0d; z-index: 1000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        /* 모달 및 페이지 레이어 */
+        .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d0d0d; z-index: 2000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
         .rank-item { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #333; }
+        
+        #nick-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: flex; align-items: center; justify-content: center; }
+        
+        @keyframes success-glow { 0% { box-shadow: 0 0 5px #2ecc71; } 50% { box-shadow: 0 0 25px #2ecc71; } 100% { box-shadow: 0 0 5px #2ecc71; } }
+        .anim-success { animation: success-glow 0.8s; border-color: #2ecc71 !important; }
     </style>
 </head>
 <body>
 
 <div id="nick-modal">
-    <div class="nick-box">
-        <h2 style="color:#ffd700; margin:0;">집사 등록</h2>
-        <p style="color:#888; font-size:0.8rem;">랭킹에 사용될 이름을 입력해주세요.</p>
-        <input type="text" id="user-nickname" class="nick-input" placeholder="별명 입력 (최대 8자)" maxlength="8">
-        <button onclick="startWithNickname()" style="margin-top:20px; width:100%; padding:12px; background:#e74c3c; color:white; border:none; border-radius:5px; font-weight:bold;">게임 시작하기</button>
+    <div style="background:#1a1a1a; padding:30px; border-radius:15px; border:2px solid #e74c3c; text-align:center; width:80%; max-width:320px;">
+        <h2 style="color:#ffd700; margin-top:0;">집사 등록</h2>
+        <input type="text" id="user-nickname" style="width:100%; padding:12px; background:#000; border:1px solid #444; color:white; border-radius:5px; text-align:center; margin:15px 0; box-sizing:border-box;" placeholder="별명 입력 (2~8자)" maxlength="8">
+        <button onclick="startApp()" style="width:100%; padding:12px; background:#e74c3c; color:white; border:none; border-radius:5px; font-weight:bold;">시작하기</button>
     </div>
 </div>
 
@@ -95,48 +65,35 @@
         </div>
 
         <div class="control-panel">
-            <div class="status-window">
-                <div class="status-row"><span>분양가</span><span id="st-value">-</span></div>
-                <div class="status-row"><span>등급</span><span id="st-grade">-</span></div>
-                <div class="status-row"><span>변이유전자</span><span id="st-gene">-</span></div>
-                <div class="status-row" style="color:#ffd700; font-weight:bold; margin-top:5px;">
-                    <span>존재 확률</span><span id="st-rarity">-</span>
-                </div>
-            </div>
-            
-            <div class="unified-gauge-container">
-                <div class="unified-gauge">
-                    <div id="seg-s" class="gauge-segment" style="background:var(--success-color); width:0%"></div>
-                    <div id="seg-m" class="gauge-segment" style="background:var(--stay-color); width:0%"></div>
-                    <div id="seg-b" class="gauge-segment" style="background:var(--destroy-color); width:0%"></div>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:0.55rem; margin-top:5px; font-weight:bold;">
-                    <span style="color:var(--success-color)">성공 <span id="val-s">0%</span></span>
-                    <span style="color:var(--stay-color)">유지 <span id="val-m">0%</span></span>
-                    <span style="color:var(--destroy-color)">가출 <span id="val-b">0%</span></span>
-                </div>
-            </div>
-
             <div class="btn-stack">
-                <button id="btn-gene" class="btn-gene" onclick="mutateGene()">유전자 변이 (500,000)</button>
                 <button id="btn-evolve" class="btn-evolve" onclick="evolve()">진화</button>
                 <button id="btn-buy" class="btn-buy" onclick="fetchNewCat()">데려오기 (1,000)</button>
                 <button id="btn-adopt" class="btn-adopt" onclick="adoptOut()">분양 보내기</button>
+                
+                <div class="rank-slot" onclick="openMyHistory()" style="margin-top:10px; padding:10px; font-size:0.8rem;">
+                    📜 나의 명예의 전당
+                </div>
                 <button style="background:#333; color:#666; font-size:0.6rem; margin-top:5px;" onclick="resetGame()">데이터 초기화</button>
             </div>
         </div>
     </div>
     
-    <div class="rank-one-slot" id="world-rank-btn" onclick="openRanking()">
-        <div style="font-size:0.6rem; color:#ffd700; margin-bottom:5px;">🏆 전 세계 1위 명예의 전당</div>
-        <div id="world-best-info" style="color:#555;">랭킹 데이터를 불러오는 중...</div>
+    <div class="rank-slot world-best-slot" onclick="openGlobalRanking()">
+        <div style="font-size:0.6rem; color:#ffd700; margin-bottom:5px;">🏆 GLOBAL WORLD RANK #1</div>
+        <div id="world-best-info" style="color:#555; font-size:0.8rem;">서버 연결 중...</div>
     </div>
 </div>
 
-<div id="ranking-page" class="full-page">
-    <h2 style="color:#ffd700; text-align:center;">🌏 글로벌 명예의 전당 (Top 20)</h2>
-    <div id="ranking-list"></div>
-    <button style="width:100%; padding:15px; margin-top:15px; background:#444; color:white; border:none; border-radius:8px;" onclick="closeRanking()">메인으로 돌아가기</button>
+<div id="my-history-page" class="full-page">
+    <h2 style="color:#fff; text-align:center;">📜 나의 분양 기록</h2>
+    <div id="my-history-list"></div>
+    <button style="width:100%; padding:15px; margin-top:15px; background:#444; color:white; border:none; border-radius:8px;" onclick="closePage('my-history-page')">닫기</button>
+</div>
+
+<div id="global-rank-page" class="full-page">
+    <h2 style="color:#ffd700; text-align:center;">🌏 전 세계 명예의 전당 (Top 20)</h2>
+    <div id="global-rank-list"></div>
+    <button style="width:100%; padding:15px; margin-top:15px; background:#444; color:white; border:none; border-radius:8px;" onclick="closePage('global-rank-page')">닫기</button>
 </div>
 
 <script type="module">
@@ -162,236 +119,202 @@
     window.gold = 10000;
     window.nickname = localStorage.getItem('catNickname') || "";
     window.currentCat = null;
-    window.catHistory = [];
+    window.myHistory = []; // 내 개인 기록용 배열
 
     const gradeInfo = {
-        "길고양이": { color: "#b2bec3", mod: 1.0, rank: 0, names: ["치즈냥", "고등어냥"], baseProb: 61.5, upBonus: 1.2, penalty: 0.5 },
-        "집고양이": { color: "#00cec9", mod: 0.85, rank: 1, names: ["샴", "페르시안"], baseProb: 25.0, upBonus: 1.5, penalty: 0.6 },
-        "품종묘": { color: "#a29bfe", mod: 0.7, rank: 2, names: ["뱅갈", "러시안블루"], baseProb: 10.0, upBonus: 2.0, penalty: 0.7 },
-        "영물": { color: "#fdcb6e", mod: 0.5, rank: 3, names: ["메인쿤", "렉돌"], baseProb: 3.0, upBonus: 2.5, penalty: 0.8 },
-        "신수": { color: "#ff7675", mod: 0.3, rank: 4, names: ["베르만", "노르웨이숲"], baseProb: 0.5, upBonus: 3.5, penalty: 0.9 }
+        "길고양이": { color: "#b2bec3", rank: 0, names: ["치즈냥", "고등어냥"], baseProb: 61.5 },
+        "집고양이": { color: "#00cec9", rank: 1, names: ["샴", "페르시안"], baseProb: 25.0 },
+        "품종묘": { color: "#a29bfe", rank: 2, names: ["뱅갈", "러시안블루"], baseProb: 10.0 },
+        "영물": { color: "#fdcb6e", rank: 3, names: ["메인쿤", "렉돌"], baseProb: 3.0 },
+        "신수": { color: "#ff7675", rank: 4, names: ["베르만", "노르웨이숲"], baseProb: 0.5 }
     };
 
-    // 닉네임 설정 및 시작
-    window.startWithNickname = function() {
-        const input = document.getElementById('user-nickname').value.trim();
-        if (input.length < 2) return alert("닉네임을 2자 이상 입력해주세요.");
-        window.nickname = input;
-        localStorage.setItem('catNickname', input);
+    window.startApp = function() {
+        const nick = document.getElementById('user-nickname').value.trim();
+        if (nick.length < 2) return alert("닉네임을 2자 이상 입력해주세요.");
+        window.nickname = nick;
+        localStorage.setItem('catNickname', nick);
         document.getElementById('nick-modal').style.display = 'none';
         loadGame();
     };
 
-    window.addLog = (msg, color = "#aaa") => {
-        const logBox = document.getElementById('game-log');
-        logBox.innerHTML = `<div style="color:${color}; margin-bottom:4px;">> ${msg}</div>` + logBox.innerHTML;
-    };
-
     window.updateUI = function() {
         document.getElementById('gold-display').innerText = window.gold.toLocaleString() + " 냥";
-        const buyBtn = document.getElementById('btn-buy');
-        const evolveBtn = document.getElementById('btn-evolve');
-        const geneBtn = document.getElementById('btn-gene');
-        const adoptBtn = document.getElementById('btn-adopt');
-
         if (window.currentCat) {
             const info = gradeInfo[window.currentCat.grade];
-            const lvl = window.currentCat.level;
-            let b = (lvl < 5) ? 0 : Math.min(20, (lvl - 4) * 2); 
-            let m = Math.min(50, lvl * (7 / info.mod)); 
-            let s = Math.max(10, 100 - b - m); 
-
-            window.currentCat.existenceProbability = (info.baseProb * (window.currentCat.survivalRate / 100)).toFixed(8);
-            
-            // ⭐ 클래식 가치 산정 (하향 지수 적용)
-            let mult = window.currentCat.isGeneticMutation ? info.upBonus : 1.0;
-            const price = Math.floor(1000 * (info.rank + 1) * 10 * Math.pow(1.55, lvl) * mult);
-            window.currentCat.marketValue = price;
-
-            document.getElementById('cat-level').innerText = "+" + lvl;
+            document.getElementById('cat-level').innerText = "+" + window.currentCat.level;
             document.getElementById('cat-level').style.color = info.color;
             document.getElementById('cat-name').innerText = window.currentCat.name;
             document.getElementById('grade-badge').innerText = window.currentCat.grade;
             document.getElementById('grade-badge').style.color = info.color;
-            document.getElementById('st-value').innerText = price.toLocaleString();
-            document.getElementById('st-grade').innerText = window.currentCat.grade;
-            document.getElementById('st-gene').innerText = window.currentCat.isGeneticMutation ? "발현됨" : (window.currentCat.geneActive ? "보유" : "없음");
-            document.getElementById('st-rarity').innerText = window.currentCat.existenceProbability + "%";
             
-            document.getElementById('seg-s').style.width = s + "%";
-            document.getElementById('seg-m').style.width = m + "%";
-            document.getElementById('seg-b').style.width = b + "%";
-            document.getElementById('val-s').innerText = Math.floor(s) + "%";
-            document.getElementById('val-m').innerText = Math.floor(m) + "%";
-            document.getElementById('val-b').innerText = Math.floor(b) + "%";
-
-            buyBtn.disabled = true;
-            adoptBtn.disabled = false;
-            const cost = Math.floor(2000 * Math.pow(1.75, lvl));
-            evolveBtn.innerText = `진화 (${cost.toLocaleString()})`;
-            evolveBtn.disabled = window.gold < cost;
-            geneBtn.disabled = !(window.currentCat.geneActive && !window.currentCat.isGeneticMutation && lvl >= 5 && window.gold >= 500000);
-            if (!geneBtn.disabled) geneBtn.classList.add('active'); else geneBtn.classList.remove('active');
+            const cost = Math.floor(2000 * Math.pow(1.8, window.currentCat.level));
+            document.getElementById('btn-evolve').innerText = `진화 (${cost.toLocaleString()})`;
+            document.getElementById('btn-evolve').disabled = window.gold < cost;
+            document.getElementById('btn-buy').disabled = true;
+            document.getElementById('btn-adopt').disabled = false;
         } else {
             document.getElementById('cat-level').innerText = "?";
-            document.getElementById('cat-level').style.color = "#eee";
             document.getElementById('cat-name').innerText = "입양 대기 중";
-            evolveBtn.innerText = "진화";
-            buyBtn.disabled = false; evolveBtn.disabled = true; adoptBtn.disabled = true; geneBtn.disabled = true;
-            document.querySelectorAll('.gauge-segment').forEach(el => el.style.width = "0%");
+            document.getElementById('btn-evolve').innerText = "진화";
+            document.getElementById('btn-buy').disabled = false;
+            document.getElementById('btn-adopt').disabled = true;
         }
-        refreshWorldBest();
+        syncWorldRankOne();
     };
 
     window.fetchNewCat = () => {
         if (window.gold < 1000) return;
         window.gold -= 1000;
         const r = Math.random() * 100;
-        let g = "길고양이";
-        if (r < 0.5) g = "신수"; else if (r < 3.5) g = "영물"; else if (r < 13.5) g = "품종묘"; else if (r < 38.5) g = "집고양이";
-        window.currentCat = { name: gradeInfo[g].names[Math.floor(Math.random()*2)], grade: g, level: 0, geneActive: Math.random() < 0.35, isGeneticMutation: false, survivalRate: 100 };
-        window.addLog(`🐾 [${g}]를 입양했습니다.`);
-        updateUI(); saveGame();
-    };
-
-    window.mutateGene = () => {
-        if (!window.currentCat || window.gold < 500000) return;
-        window.gold -= 500000;
-        const grades = Object.keys(gradeInfo);
-        const idx = grades.indexOf(window.currentCat.grade);
-        if (idx < grades.length - 1 && Math.random() < 0.6) {
-            window.currentCat.grade = grades[idx+1];
-            window.currentCat.isGeneticMutation = true;
-            window.currentCat.survivalRate *= 0.6;
-            window.addLog(`🔮 변이 성공! [${window.currentCat.grade}] 등급 상승`, "#fab1a0");
-            playAnimation('success');
-        } else {
-            window.currentCat.isGeneticMutation = false;
-            window.currentCat.geneActive = false;
-            window.currentCat.survivalRate *= 0.4;
-            window.addLog(`🔮 변이 실패... 유전자 손상`, "#e74c3c");
-            playAnimation('shake');
-        }
+        let g = (r < 0.5) ? "신수" : (r < 3.5) ? "영물" : (r < 13.5) ? "품종묘" : (r < 38.5) ? "집고양이" : "길고양이";
+        window.currentCat = { name: gradeInfo[g].names[Math.floor(Math.random()*2)], grade: g, level: 0, survivalRate: 100 };
+        addLog(`🐾 [${g}]를 입양했습니다.`);
         updateUI(); saveGame();
     };
 
     window.evolve = () => {
-        const cost = Math.floor(2000 * Math.pow(1.75, window.currentCat.level));
+        const cost = Math.floor(2000 * Math.pow(1.8, window.currentCat.level));
         if (window.gold < cost) return;
         window.gold -= cost;
-        const lvl = window.currentCat.level;
-        const info = gradeInfo[window.currentCat.grade];
-        let b = (lvl < 5) ? 0 : Math.min(20, (lvl - 4) * 2); 
-        let m = Math.min(50, lvl * (7 / info.mod)); 
-        let s = Math.max(10, 100 - b - m); 
+        
         const r = Math.random() * 100;
-        if (r <= s + m) {
-            if (r <= s) { window.currentCat.level++; window.addLog(`✨ 진화 성공! +${window.currentCat.level}`, "#2ecc71"); playAnimation('success'); }
-            else { window.addLog("💨 등급 유지"); playAnimation('shake'); }
-            window.currentCat.survivalRate *= ((s + m) / 100);
+        const successLimit = Math.max(15, 80 - (window.currentCat.level * 8)); // 단순화된 확률 로직
+        
+        if (r < successLimit) {
+            window.currentCat.level++;
+            addLog(`✨ 진화 성공! +${window.currentCat.level}`, "#2ecc71");
         } else {
-            window.addLog(`😭 +${window.currentCat.level} 고양이가 가출했습니다.`, "#e74c3c");
+            addLog(`😭 +${window.currentCat.level} 고양이가 가출했습니다.`, "#e74c3c");
             window.currentCat = null;
         }
         updateUI(); saveGame();
     };
 
-    function playAnimation(type) {
-        const el = document.getElementById('cat-display-area');
-        const cls = type === 'success' ? 'anim-success' : 'anim-shake';
-        el.classList.remove('anim-success', 'anim-shake');
-        void el.offsetWidth; el.classList.add(cls);
-        setTimeout(() => el.classList.remove(cls), 800);
-    }
-
-    // ⭐ 분양 시 서버 명예의 전당 기록
+    // ⭐ 분양 및 데이터 기록 분리
     window.adoptOut = async function() {
         if (!window.currentCat) return;
+        const info = gradeInfo[window.currentCat.grade];
+        const price = Math.floor(1000 * (info.rank + 1) * 10 * Math.pow(1.6, window.currentCat.level));
+        
+        const prob = parseFloat((info.baseProb * Math.pow(0.8, window.currentCat.level)).toFixed(8)); // 가상의 존재확률 계산
+
         const record = {
             owner: window.nickname,
             catName: window.currentCat.name,
-            prob: parseFloat(window.currentCat.existenceProbability),
-            value: window.currentCat.marketValue,
-            mutation: window.currentCat.isGeneticMutation,
             grade: window.currentCat.grade,
             level: window.currentCat.level,
-            date: new Date().getTime()
+            prob: prob,
+            value: price,
+            date: Date.now()
         };
-        window.catHistory.push(record);
-        window.catHistory.sort((a, b) => a.prob - b.prob);
-        window.catHistory = window.catHistory.slice(0, 20);
 
-        window.gold += record.value;
-        window.addLog(`💰 분양 완료! +${record.value.toLocaleString()} 냥`, "#ffd700");
+        // 1. 내 개인 기록 추가
+        window.myHistory.unshift(record);
+        window.myHistory = window.myHistory.slice(0, 50); // 최근 50개만 유지
+
+        window.gold += price;
+        addLog(`💰 [${window.currentCat.name}] 분양 완료! +${price.toLocaleString()} 냥`);
         window.currentCat = null;
-        updateUI(); await saveGame();
+        
+        updateUI();
+        await saveGame();
     };
 
-    async function refreshWorldBest() {
-        const all = await fetchGlobalRank();
-        const infoBox = document.getElementById('world-best-info');
-        if (all.length > 0) {
-            const best = all[0];
-            const color = gradeInfo[best.grade].color;
-            infoBox.innerHTML = `<span style="color:#fff; font-weight:bold;">${best.owner}</span>의 <span style="color:${color}; font-weight:bold;">+${best.level} ${best.catName}</span><br><span style="color:#ffd700; font-size:0.7rem;">확률: ${best.prob}%</span>`;
-        }
-    }
-
-    async function fetchGlobalRank() {
-        try {
-            const querySnapshot = await getDocs(collection(db, "users"));
-            let all = [];
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.catHistory) all = all.concat(data.catHistory);
-            });
-            all.sort((a, b) => a.prob - b.prob);
-            return all.slice(0, 20);
-        } catch(e) { return []; }
-    }
-
-    window.openRanking = async function() {
-        document.getElementById('ranking-page').style.display = 'block';
-        const list = document.getElementById('ranking-list');
-        list.innerHTML = "<p style='text-align:center;'>데이터 로드 중...</p>";
-        const bests = await fetchGlobalRank();
-        list.innerHTML = bests.map((c, i) => `
+    // 내 기록 페이지 열기
+    window.openMyHistory = function() {
+        document.getElementById('my-history-page').style.display = 'block';
+        const container = document.getElementById('my-history-list');
+        container.innerHTML = window.myHistory.map(c => `
             <div class="rank-item" style="border-left-color:${gradeInfo[c.grade].color}">
                 <div>
-                    <span style="color:#ffd700; font-weight:bold;">${i+1}위</span>
-                    <span style="color:#fff; margin-left:10px;">${c.owner}의</span> <span style="color:${gradeInfo[c.grade].color}; font-weight:bold;">+${c.level} ${c.catName}</span>
-                    <div style="font-size:0.6rem; color:#666;">등급: ${c.grade} | 가치: ${c.value.toLocaleString()} | 변이: ${c.mutation ? 'O' : 'X'}</div>
+                    <span style="color:${gradeInfo[c.grade].color}; font-weight:bold;">+${c.level} ${c.catName}</span>
+                    <div style="font-size:0.6rem; color:#666;">분양가: ${c.value.toLocaleString()} 냥</div>
                 </div>
-                <div style="text-align:right; color:#ffd700; font-weight:bold; font-size:0.8rem;">${c.prob}%</div>
+                <div style="text-align:right; font-size:0.7rem; color:#888;">${new Date(c.date).toLocaleDateString()}</div>
             </div>
         `).join('') || "<p style='text-align:center;'>기록이 없습니다.</p>";
     };
 
-    window.closeRanking = () => document.getElementById('ranking-page').style.display = 'none';
+    // 글로벌 랭킹 페이지 열기
+    window.openGlobalRanking = async function() {
+        document.getElementById('global-rank-page').style.display = 'block';
+        const list = document.getElementById('global-rank-list');
+        list.innerHTML = "<p style='text-align:center;'>전 세계 데이터 불러오는 중...</p>";
+        
+        const bests = await fetchGlobalData();
+        list.innerHTML = bests.map((c, i) => `
+            <div class="rank-item" style="border-left-color:${gradeInfo[c.grade].color}">
+                <div>
+                    <span style="color:#ffd700; font-weight:bold;">${i+1}위</span>
+                    <span style="color:#fff; margin-left:10px;">${c.owner}의</span>
+                    <span style="color:${gradeInfo[c.grade].color}; font-weight:bold;">+${c.level} ${c.catName}</span>
+                </div>
+                <div style="text-align:right; color:#ffd700; font-weight:bold; font-size:0.8rem;">${c.prob}%</div>
+            </div>
+        `).join('') || "<p style='text-align:center;'>데이터가 없습니다.</p>";
+    };
 
+    async function fetchGlobalData() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            let all = [];
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.catHistory) all = all.concat(data.catHistory);
+            });
+            return all.sort((a, b) => a.prob - b.prob).slice(0, 20);
+        } catch(e) { return []; }
+    }
+
+    async function syncWorldRankOne() {
+        const bests = await fetchGlobalData();
+        const info = document.getElementById('world-best-info');
+        if (bests.length > 0) {
+            const top = bests[0];
+            const color = gradeInfo[top.grade].color;
+            info.innerHTML = `
+                <div style="color:${color}; font-size:1.8rem; font-weight:900;">+${top.level}</div>
+                <div style="color:#fff; font-weight:bold;">${top.owner}의 (${top.catName})</div>
+                <div style="color:#ffd700; font-size:0.7rem;">희귀도: ${top.prob}%</div>
+            `;
+        } else {
+            info.innerText = "아직 전설이 없습니다.";
+        }
+    }
+
+    window.closePage = (id) => document.getElementById(id).style.display = 'none';
+    window.addLog = (msg, color="#aaa") => { const b = document.getElementById('game-log'); b.innerHTML = `<div style="color:${color}">> ${msg}</div>` + b.innerHTML; };
     window.resetGame = () => { if(confirm("초기화할까요?")) { localStorage.clear(); location.reload(); } };
 
     async function saveGame() {
         localStorage.setItem('gold', window.gold);
-        localStorage.setItem('catHistory', JSON.stringify(window.catHistory));
-        localStorage.setItem('currentCat', JSON.stringify(window.currentCat));
-        try { await setDoc(doc(db, "users", myId), { gold: window.gold, currentCat: window.currentCat, catHistory: window.catHistory }); } catch(e) {}
+        localStorage.setItem('myHistory', JSON.stringify(window.myHistory));
+        try {
+            await setDoc(doc(db, "users", myId), { 
+                gold: window.gold, 
+                currentCat: window.currentCat, 
+                catHistory: window.myHistory,
+                nickname: window.nickname 
+            });
+        } catch(e) {}
     }
 
     async function loadGame() {
-        if (!window.nickname) { document.getElementById('nick-modal').style.display = 'flex'; return; }
+        if (!window.nickname) return;
         try {
             const snap = await getDoc(doc(db, "users", myId));
             if (snap.exists()) {
                 const d = snap.data();
                 window.gold = d.gold || 10000;
+                window.myHistory = d.catHistory || [];
                 window.currentCat = d.currentCat;
-                window.catHistory = d.catHistory || [];
             }
         } catch(e) {}
         updateUI();
     }
-    loadGame();
+    
+    if (window.nickname) loadGame();
 </script>
 </body>
 </html>
