@@ -98,12 +98,12 @@
         .rate-table th, .rate-table td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
         .rate-table th { background: #222; color: #aaa; }
         
-        /* ⭐ 도감 스타일 개편: 4분할 그리드 + 미니 카드 */
+        /* ⭐ 도감 스타일 레이아웃 고정 수정 */
         .book-compact-grid { 
             display: grid; 
-            grid-template-columns: repeat(4, 1fr); /* 4분할 */
+            grid-template-columns: repeat(4, 1fr); 
             gap: 8px; 
-            padding: 5px;
+            padding: 5px; 
         }
         
         .book-card-mini { 
@@ -114,7 +114,12 @@
             flex-direction: column; 
             padding: 5px; 
             position: relative; 
-            aspect-ratio: 0.85/1; /* 세로가 살짝 긴 비율 */
+            /* 레이아웃 고정 핵심 */
+            width: 100%; 
+            min-width: 0; /* flex/grid item 넘침 방지 */
+            aspect-ratio: 0.85/1;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .book-mini-header { 
@@ -126,14 +131,18 @@
             overflow: hidden; 
             text-overflow: ellipsis;
             color: #777;
+            height: 14px; /* 높이 고정 */
+            line-height: 14px;
         }
 
         .book-mini-slots { 
             display: grid; 
-            grid-template-columns: 1fr 1fr; /* 2x2 내부 배치 */
+            grid-template-columns: 1fr 1fr; 
             grid-template-rows: 1fr 1fr;
             gap: 2px; 
-            flex: 1;
+            flex: 1; 
+            width: 100%;
+            height: 100%;
         }
 
         .book-mini-slot { 
@@ -142,33 +151,17 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-size: 1rem; /* 작은 이모지 크기 */
+            font-size: 1.1rem; /* 이모지 크기 적절히 */
             position: relative;
             overflow: hidden;
+            width: 100%;
+            height: 100%;
         }
 
-        /* 실루엣 & 숨김 */
         .silhouette { filter: brightness(0); opacity: 0.3; }
         .hidden-mark { font-size: 0.8rem; color: #333; font-weight: bold; }
-
-        /* 도감 완성 효과 */
-        .book-mini-completed { 
-            border: 1px solid #ffd700; 
-            box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); 
-            animation: goldPulseMini 2s infinite; 
-            cursor: pointer; 
-        }
-        
-        /* 완료 뱃지 (미니 버전) */
-        .mini-reward-dot {
-            position: absolute;
-            top: 2px; right: 2px;
-            width: 8px; height: 8px;
-            background: #ffd700;
-            border-radius: 50%;
-            border: 1px solid #000;
-            z-index: 10;
-        }
+        .book-mini-completed { border: 1px solid #ffd700; box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); animation: goldPulseMini 2s infinite; cursor: pointer; }
+        .mini-reward-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: #ffd700; border-radius: 50%; border: 1px solid #000; z-index: 10; }
 
         @keyframes goldPulseMini { 0% { box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); } 50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.6); } 100% { box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); } }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -303,6 +296,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
+    // ⭐ Firebase Key (그대로 사용)
     const firebaseConfig = {
         apiKey: "AIzaSyA-QVwu7jpUUeLH3jtqYHChfwOW3FHY3pc", 
         authDomain: "gkyoungee.firebaseapp.com",
@@ -351,10 +345,16 @@
         { name: "항해", grades: ["레어","에픽"], stages: ["⚓","⛵","🚢","🏝️"] }, { name: "우주2", grades: ["에픽","레전더리"], stages: ["🛰️","🚀","🛸","👽"] }, { name: "불꽃", grades: ["매직","레어"], stages: ["🔥","🕯️","🧨","🎇"] }, { name: "전기", grades: ["레어","에픽"], stages: ["🔌","🔋","⚡","💡"] }, { name: "흉기", grades: ["에픽","레전더리"], stages: ["🔪","🩸","⚰️","👻"] }
     ];
 
+    // 게임 상태 변수
     window.gold = 10000; window.nickname = ""; window.currentEmoji = null; 
     window.myHistory = []; window.selectedInvIdx = null;
     window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null }));
     window.book = {}; window.claimedRewards = [];
+    
+    // ⭐ [최적화 1] 전역 변수: 저장 타이머, 랭킹 캐시, 랭킹 마지막 로드 시간
+    let saveTimeout = null;
+    let cachedRankData = null;
+    let lastRankFetch = 0;
 
     window.addLog = (msg) => { const lb = document.getElementById('game-log'); const d = document.createElement('div'); d.innerText = `> ${msg}`; lb.appendChild(d); lb.scrollTop = lb.scrollHeight; };
     window.vibrate = () => { if(navigator.vibrate) navigator.vibrate(10); };
@@ -640,21 +640,16 @@
             card.className = "book-card-mini"; 
             card.style.borderColor = isDiscovered ? info.color : '#333';
             
-            // 완성 및 보상 체크
             if(isCompleted) {
                 card.className += " book-mini-completed";
                 card.onclick = () => handleReward(path.name);
-                if(isClaimed) {
-                     // 이미 받음: 작은 체크 표시 등
-                } else {
+                if(isClaimed) { } else {
                      card.innerHTML += `<div class="mini-reward-dot" title="보상 받기"></div>`;
                 }
             }
 
-            // 헤더
             let headerHtml = `<div class="book-mini-header" style="color:${isDiscovered ? '#fff' : '#555'}">${isDiscovered ? path.name : '???'}</div>`;
 
-            // 슬롯 (2x2)
             let slotsHtml = `<div class="book-mini-slots">`;
             for(let i=0; i<4; i++) {
                 let content = "";
@@ -689,16 +684,38 @@
         alert(`축하합니다! [${themeName}] 진화 완성 보상으로\n50,000,000 골드가 지급되었습니다!`);
     }
 
+    // ⭐ [최적화 2] 랭킹 동기화 (전역 캐싱 적용, 1분 쿨타임)
     async function syncGlobal() { 
+        // 1. 처음 앱 실행 시 딱 한 번만 자동 실행 (init에서 호출)
+        // 2. 사용자가 랭킹 버튼 눌렀을 때 실행 (openGlobalRanking에서 호출)
         if(!db) return;
         try { 
-            let snap = await getDocs(collection(db, "users")); let all = []; 
-            snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
+            let all = [];
+            // 캐시가 없거나, 마지막 조회 후 60초가 지났으면 서버에서 가져옴
+            if (!cachedRankData || (Date.now() - lastRankFetch > 60000)) {
+                let snap = await getDocs(collection(db, "users")); 
+                snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
+                cachedRankData = all; // 캐시 업데이트
+                lastRankFetch = Date.now(); // 시간 업데이트
+                console.log("🔥 서버에서 랭킹 데이터 가져옴 (비용 발생)");
+            } else {
+                all = cachedRankData; // 캐시 사용
+                console.log("♻️ 캐시된 랭킹 데이터 사용 (무료)");
+            }
+
             const bests = all.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob); 
             const worldBtnVal = document.getElementById('world-best-info');
             const worldBtnIcon = document.getElementById('world-best-icon');
             if (bests.length > 0) { let t = bests[0]; worldBtnVal.innerHTML = `<span style="color:#fff">${t.owner}</span> <span style="font-size:0.7rem; color:#aaa">(${t.grade})</span>`; worldBtnIcon.innerText = t.emoji; } else { worldBtnVal.innerText = "기록 없음"; worldBtnIcon.innerText = "👑"; }
-        } catch(e) {} 
+            
+            // 랭킹 페이지가 열려있다면 리스트도 갱신
+            const rankListEl = document.getElementById('rank-list');
+            if (rankListEl.offsetParent !== null) {
+                const listData = bests.slice(0, 50);
+                rankListEl.innerHTML = renderRanking(listData);
+            }
+
+        } catch(e) { console.log(e); } 
     }
 
     function renderRanking(list) {
@@ -722,19 +739,39 @@
         history.pushState({ modal: true }, '', '');
         const page = document.getElementById('rank-page');
         page.style.display = 'block'; page.scrollTop = 0;
-        document.getElementById('rank-title').innerText = "🌏 글로벌 명예의 전당"; document.getElementById('rank-list').innerHTML = "데이터 로딩 중..."; 
+        document.getElementById('rank-title').innerText = "🌏 글로벌 명예의 전당"; 
+        
+        // 캐시 데이터가 있으면 먼저 보여줌 (반응성 향상)
+        if (cachedRankData) {
+             const bests = cachedRankData.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob).slice(0, 50);
+             document.getElementById('rank-list').innerHTML = renderRanking(bests);
+        } else {
+             document.getElementById('rank-list').innerHTML = "데이터 로딩 중..."; 
+        }
+        
         if(!db) { document.getElementById('rank-list').innerText = "서버 연결 안됨"; return; }
-        let snap = await getDocs(collection(db, "users")); let all = []; snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); let bsts = all.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob).slice(0, 50); document.getElementById('rank-list').innerHTML = renderRanking(bsts); 
+        
+        // 랭킹 갱신 시도 (쿨타임 체크 포함됨)
+        await syncGlobal();
     };
     
+    // ⭐ [최적화 3] 저장 디바운싱 (2초 딜레이)
     async function saveGame() { 
         if(window.nickname) {
             const dataToSave = { 
                 g: window.gold, c: window.currentEmoji, h: window.myHistory, i: window.inventory, pw: window.password,
                 b: window.book, r: window.claimedRewards 
             };
+            // 1. 로컬: 즉시 저장 (데이터 유실 방지)
             localStorage.setItem('catSave_' + window.nickname, JSON.stringify(dataToSave)); 
-            if(db) { try { await setDoc(doc(db, "users", window.nickname), dataToSave, { merge: true }); } catch(e) {} }
+            
+            // 2. 서버: 2초 뒤 한 번만 저장 (비용 절약)
+            if(db) { 
+                if(saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(async () => {
+                    try { await setDoc(doc(db, "users", window.nickname), dataToSave, { merge: true }); } catch(e) {} 
+                }, 2000);
+            }
         }
     }
 
@@ -799,6 +836,7 @@
         localStorage.setItem('catSave_' + nick, JSON.stringify(data));
         document.getElementById('nick-modal').style.display = 'none';
         addLog(`환영합니다, 마스터 ${nick}님!`); updateUI();
+        syncGlobal(); // 로그인 직후 한 번 랭킹 로드
     }
 
     window.logout = () => { localStorage.removeItem('lastUser'); location.reload(); };
