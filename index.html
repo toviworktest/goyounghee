@@ -9,7 +9,6 @@
             --common: #b2bec3; --magic: #00cec9; --rare: #a29bfe; --epic: #fab1a0; --legendary: #ff7675;
             --success: #2ecc71; --stay: #f1c40f; --destroy: #e74c3c; --bg: #0d0d0d; --panel: #111; --border: #333;
             --purple-btn: #9c27b0;
-            /* 티어 색상 변수 */
             --tier-f: #636e72; --tier-c: #00cec9; --tier-b: #a29bfe; --tier-a: #fab1a0; --tier-s: #ff7675; --tier-ss: #ffeaa7; --tier-sss: #fdcb6e;
         }
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: var(--bg); color: #eee; margin: 0; padding: 10px; overflow-x: hidden; }
@@ -84,6 +83,9 @@
         .login-btn { width:48%; padding:12px; border:none; border-radius:8px; font-weight:bold; margin-top: 10px; font-size: 0.9rem; cursor: pointer; }
         .btn-join { background: #00cec9; color: #000; }
         .btn-login { background: #e74c3c; color: white; }
+        /* ⭐ 구글 로그인 버튼 스타일 */
+        .btn-google { width:100%; background:#fff; color:#333; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px; }
+        .btn-google:hover { background:#f1f1f1; }
         
         .glow-legendary { animation: text-glow 1.5s infinite alternate; }
         @keyframes text-glow { from { text-shadow: 0 0 5px #ff7675; } to { text-shadow: 0 0 20px #ff7675; } }
@@ -98,66 +100,11 @@
         .rate-table th, .rate-table td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
         .rate-table th { background: #222; color: #aaa; }
         
-        /* ⭐ 도감 스타일 레이아웃 고정 수정 */
-        .book-compact-grid { 
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 8px; 
-            padding: 5px; 
-        }
-        
-        .book-card-mini { 
-            background: #1a1a1a; 
-            border: 1px solid #333; 
-            border-radius: 8px; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 5px; 
-            position: relative; 
-            /* 레이아웃 고정 핵심 */
-            width: 100%; 
-            min-width: 0; /* flex/grid item 넘침 방지 */
-            aspect-ratio: 0.85/1;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .book-mini-header { 
-            font-size: 0.65rem; 
-            font-weight: bold; 
-            text-align: center; 
-            margin-bottom: 4px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis;
-            color: #777;
-            height: 14px; /* 높이 고정 */
-            line-height: 14px;
-        }
-
-        .book-mini-slots { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            grid-template-rows: 1fr 1fr;
-            gap: 2px; 
-            flex: 1; 
-            width: 100%;
-            height: 100%;
-        }
-
-        .book-mini-slot { 
-            background: #000; 
-            border-radius: 4px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1.1rem; /* 이모지 크기 적절히 */
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
-        }
-
+        .book-compact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 5px; }
+        .book-card-mini { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; padding: 5px; position: relative; width: 100%; min-width: 0; aspect-ratio: 0.85/1; box-sizing: border-box; overflow: hidden; }
+        .book-mini-header { font-size: 0.65rem; font-weight: bold; text-align: center; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #777; height: 14px; line-height: 14px; }
+        .book-mini-slots { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; flex: 1; width: 100%; height: 100%; }
+        .book-mini-slot { background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; position: relative; overflow: hidden; width: 100%; height: 100%; }
         .silhouette { filter: brightness(0); opacity: 0.3; }
         .hidden-mark { font-size: 0.8rem; color: #333; font-weight: bold; }
         .book-mini-completed { border: 1px solid #ffd700; box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); animation: goldPulseMini 2s infinite; cursor: pointer; }
@@ -171,15 +118,24 @@
 
 <div id="nick-modal">
     <div class="login-box">
-        <h2 style="color:#ffd700; margin-top:0;">SYSTEM LOGIN</h2>
-        <p style="color:#f1c40f; font-size:0.8rem; margin:10px 0; font-weight:bold; background:#332b00; padding:8px; border-radius:5px;">
-            ⚠ 보안 주의: 금융/실제 비밀번호 사용 금지
-        </p>
-        <input type="text" id="inp-nick" class="login-input" placeholder="닉네임 (ID)" maxlength="12">
-        <input type="password" id="inp-pw" class="login-input" placeholder="비밀번호" maxlength="20">
+        <h2 style="color:#ffd700; margin-top:0;">GAME START</h2>
+        
+        <button class="login-btn btn-google" onclick="googleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" alt="G">
+            <span>Google 계정으로 시작</span>
+        </button>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:15px 0; color:#555; font-size:0.7rem;">
+            <div style="flex:1; height:1px; background:#333;"></div> OR <div style="flex:1; height:1px; background:#333;"></div>
+        </div>
+
+        <input type="email" id="inp-email" class="login-input" placeholder="이메일 주소" maxlength="50">
+        <input type="password" id="inp-pw" class="login-input" placeholder="비밀번호 (6자 이상)" maxlength="30">
+        <input type="text" id="inp-nick" class="login-input" placeholder="닉네임 (중복 불가)" style="display:none;" maxlength="10">
+        
         <div style="display:flex; justify-content:space-between;">
-            <button class="login-btn btn-join" onclick="handleAuth('signup')">새로 시작 (가입)</button>
-            <button class="login-btn btn-login" onclick="handleAuth('login')">불러오기 (로그인)</button>
+            <button class="login-btn btn-join" onclick="toggleJoinMode()">회원가입 (이메일)</button>
+            <button class="login-btn btn-login" onclick="processAuth()">이메일 로그인</button>
         </div>
         <div id="auth-msg" style="color:#ff7675; font-size:0.75rem; margin-top:10px; height:15px;"></div>
     </div>
@@ -201,7 +157,10 @@
             </div>
             <div id="game-log" class="in-game-log"></div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div id="my-id-label" style="font-size:0.6rem; color:#444; padding-left:5px;">ID: -</div>
+                <div style="display:flex; align-items:center;">
+                    <div id="my-id-label" style="font-size:0.6rem; color:#444; padding-left:5px;">ID: -</div>
+                    <button onclick="changeNickname()" style="background:none; border:none; cursor:pointer; font-size:0.7rem; padding:0 5px;" title="닉네임 변경">✏️</button>
+                </div>
                 <button onclick="logout()" style="background:#333; color:#aaa; font-size:0.6rem; padding:2px 8px;">로그아웃</button>
             </div>
         </div>
@@ -294,9 +253,10 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+    // ⭐ GoogleAuthProvider, signInWithPopup 추가됨
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-    // ⭐ Firebase Key (그대로 사용)
     const firebaseConfig = {
         apiKey: "AIzaSyA-QVwu7jpUUeLH3jtqYHChfwOW3FHY3pc", 
         authDomain: "gkyoungee.firebaseapp.com",
@@ -306,11 +266,14 @@
         appId: "1:903817816298:web:a607dd06d9729bc7a60f93"
     };
 
-    let app, db;
-    try { app = initializeApp(firebaseConfig); db = getFirestore(app); } catch(e) { console.log("Firebase Init Fail"); }
+    let app, db, auth;
+    try { 
+        app = initializeApp(firebaseConfig); 
+        db = getFirestore(app); 
+        auth = getAuth(app);
+    } catch(e) { console.log("Firebase Init Fail", e); }
 
     const gradeInfo = { "일반": { color: "#b2bec3", mod: 1.0, rank: 0, prob: 45.0, weight: 1.0 }, "매직": { color: "#00cec9", mod: 0.85, rank: 1, prob: 25.0, weight: 2.0 }, "레어": { color: "#a29bfe", mod: 0.7, rank: 2, prob: 15.0, weight: 3.0 }, "에픽": { color: "#fab1a0", mod: 0.5, rank: 3, prob: 10.0, weight: 4.0 }, "레전더리": { color: "#ff7675", mod: 0.3, rank: 4, prob: 5.0, weight: 15.0 } };
-    
     function getTier(rarity) {
         const val = parseFloat(rarity);
         if (val > 30.0) return { text: "F", color: "#636e72" };
@@ -321,7 +284,6 @@
         if (val > 0.01) return { text: "SS", color: "#ffeaa7" };
         return { text: "SSS", color: "#fdcb6e" };
     }
-
     const evoPaths = [
         { name: "보석", grades: ["레전더리"], stages: ["📿", "💍", "👑", "✨"] }, { name: "기상", grades: ["일반", "매직"], stages: ["☀️", "🌤️", "🌦️", "🌈"] }, { name: "도시", grades: ["매직", "레어"], stages: ["🧱", "🏠", "🏢", "🏙️"] }, { name: "의류", grades: ["일반", "매직"], stages: ["🧶", "👕", "👔", "🕴️"] }, { name: "심해", grades: ["에픽", "레전더리"], stages: ["🐚", "🦀", "🐙", "🦈"] },
         { name: "사무", grades: ["매직", "레어"], stages: ["📎", "📂", "🖥️", "🏢"] }, { name: "식사", grades: ["일반", "매직"], stages: ["🥣", "🥗", "🍝", "🍗"] }, { name: "미래", grades: ["에픽", "레전더리"], stages: ["🔋", "⚡", "🤖", "🛸"] }, { name: "연금술", grades: ["레어", "에픽"], stages: ["🧪", "⚗️", "🔮", "🧙"] }, { name: "유적", grades: ["매직", "레어"], stages: ["⛏️", "🔦", "🦴", "🏺"] },
@@ -345,16 +307,17 @@
         { name: "항해", grades: ["레어","에픽"], stages: ["⚓","⛵","🚢","🏝️"] }, { name: "우주2", grades: ["에픽","레전더리"], stages: ["🛰️","🚀","🛸","👽"] }, { name: "불꽃", grades: ["매직","레어"], stages: ["🔥","🕯️","🧨","🎇"] }, { name: "전기", grades: ["레어","에픽"], stages: ["🔌","🔋","⚡","💡"] }, { name: "흉기", grades: ["에픽","레전더리"], stages: ["🔪","🩸","⚰️","👻"] }
     ];
 
-    // 게임 상태 변수
     window.gold = 10000; window.nickname = ""; window.currentEmoji = null; 
     window.myHistory = []; window.selectedInvIdx = null;
     window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null }));
     window.book = {}; window.claimedRewards = [];
     
-    // ⭐ [최적화 1] 전역 변수: 저장 타이머, 랭킹 캐시, 랭킹 마지막 로드 시간
     let saveTimeout = null;
     let cachedRankData = null;
     let lastRankFetch = 0;
+    
+    let isJoinMode = false;
+    window.currentUserUid = null;
 
     window.addLog = (msg) => { const lb = document.getElementById('game-log'); const d = document.createElement('div'); d.innerText = `> ${msg}`; lb.appendChild(d); lb.scrollTop = lb.scrollHeight; };
     window.vibrate = () => { if(navigator.vibrate) navigator.vibrate(10); };
@@ -366,8 +329,7 @@
     }
     
     window.realExit = () => {
-        localStorage.removeItem('lastUser'); 
-        location.reload(); 
+        window.logout(); 
     };
 
     window.cancelExit = () => {
@@ -610,7 +572,6 @@
 
     document.getElementById('display-area').onclick = () => { if (window.selectedInvIdx !== null) { window.swapWithMain(); } };
 
-    // ⭐ 도감 열기 (4분할 그리드 + 보상 + 실루엣)
     window.openBook = () => { 
         if(isGameModalOpen()) return;
         history.pushState({ modal: true }, '', '');
@@ -684,23 +645,18 @@
         alert(`축하합니다! [${themeName}] 진화 완성 보상으로\n50,000,000 골드가 지급되었습니다!`);
     }
 
-    // ⭐ [최적화 2] 랭킹 동기화 (전역 캐싱 적용, 1분 쿨타임)
     async function syncGlobal() { 
-        // 1. 처음 앱 실행 시 딱 한 번만 자동 실행 (init에서 호출)
-        // 2. 사용자가 랭킹 버튼 눌렀을 때 실행 (openGlobalRanking에서 호출)
         if(!db) return;
         try { 
             let all = [];
-            // 캐시가 없거나, 마지막 조회 후 60초가 지났으면 서버에서 가져옴
+            // 캐시 1분 쿨타임
             if (!cachedRankData || (Date.now() - lastRankFetch > 60000)) {
                 let snap = await getDocs(collection(db, "users")); 
                 snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
-                cachedRankData = all; // 캐시 업데이트
-                lastRankFetch = Date.now(); // 시간 업데이트
-                console.log("🔥 서버에서 랭킹 데이터 가져옴 (비용 발생)");
+                cachedRankData = all; 
+                lastRankFetch = Date.now(); 
             } else {
-                all = cachedRankData; // 캐시 사용
-                console.log("♻️ 캐시된 랭킹 데이터 사용 (무료)");
+                all = cachedRankData; 
             }
 
             const bests = all.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob); 
@@ -708,7 +664,6 @@
             const worldBtnIcon = document.getElementById('world-best-icon');
             if (bests.length > 0) { let t = bests[0]; worldBtnVal.innerHTML = `<span style="color:#fff">${t.owner}</span> <span style="font-size:0.7rem; color:#aaa">(${t.grade})</span>`; worldBtnIcon.innerText = t.emoji; } else { worldBtnVal.innerText = "기록 없음"; worldBtnIcon.innerText = "👑"; }
             
-            // 랭킹 페이지가 열려있다면 리스트도 갱신
             const rankListEl = document.getElementById('rank-list');
             if (rankListEl.offsetParent !== null) {
                 const listData = bests.slice(0, 50);
@@ -741,7 +696,6 @@
         page.style.display = 'block'; page.scrollTop = 0;
         document.getElementById('rank-title').innerText = "🌏 글로벌 명예의 전당"; 
         
-        // 캐시 데이터가 있으면 먼저 보여줌 (반응성 향상)
         if (cachedRankData) {
              const bests = cachedRankData.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob).slice(0, 50);
              document.getElementById('rank-list').innerHTML = renderRanking(bests);
@@ -750,102 +704,191 @@
         }
         
         if(!db) { document.getElementById('rank-list').innerText = "서버 연결 안됨"; return; }
-        
-        // 랭킹 갱신 시도 (쿨타임 체크 포함됨)
         await syncGlobal();
     };
     
-    // ⭐ [최적화 3] 저장 디바운싱 (2초 딜레이)
     async function saveGame() { 
-        if(window.nickname) {
+        if(window.currentUserUid) {
             const dataToSave = { 
-                g: window.gold, c: window.currentEmoji, h: window.myHistory, i: window.inventory, pw: window.password,
+                nickname: window.nickname, 
+                g: window.gold, c: window.currentEmoji, h: window.myHistory, i: window.inventory,
                 b: window.book, r: window.claimedRewards 
             };
-            // 1. 로컬: 즉시 저장 (데이터 유실 방지)
             localStorage.setItem('catSave_' + window.nickname, JSON.stringify(dataToSave)); 
             
-            // 2. 서버: 2초 뒤 한 번만 저장 (비용 절약)
             if(db) { 
                 if(saveTimeout) clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(async () => {
-                    try { await setDoc(doc(db, "users", window.nickname), dataToSave, { merge: true }); } catch(e) {} 
+                    try { await setDoc(doc(db, "users", window.currentUserUid), dataToSave, { merge: true }); } catch(e) {} 
                 }, 2000);
             }
         }
     }
 
-    window.handleAuth = async (mode) => {
-        const idInput = document.getElementById('inp-nick');
-        const pwInput = document.getElementById('inp-pw');
+    async function checkNicknameDuplicate(nick) {
+        if(!db) return false;
+        try {
+            const q = query(collection(db, "users"), where("nickname", "==", nick));
+            const querySnapshot = await getDocs(q);
+            return !querySnapshot.empty;
+        } catch(e) {
+            console.log("Nick Check Error", e);
+            return false;
+        }
+    }
+
+    // ⭐ 구글 로그인 함수 추가
+    window.googleLogin = async () => {
+        const provider = new GoogleAuthProvider();
         const msg = document.getElementById('auth-msg');
-        const id = idInput.value.trim();
-        const pw = pwInput.value.trim();
-        if(id.length < 2 || pw.length < 4) { msg.innerText = "ID는 2자, 비번은 4자 이상이어야 합니다."; return; }
-        const localKey = `catSave_${id}`; 
+        msg.innerText = "Google 로그인 시도 중...";
+        
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // 성공하면 onAuthStateChanged가 자동으로 처리함
+        } catch (error) {
+            console.error(error);
+            msg.innerText = "로그인 실패: " + error.message;
+        }
+    }
 
-        if(mode === 'signup') {
-            if(localStorage.getItem(localKey)) { msg.innerText = "이미 존재하는 ID입니다 (로컬)."; return; }
-            if(db) {
-                try {
-                    const snap = await getDoc(doc(db, "users", id));
-                    if(snap.exists()) { msg.innerText = "이미 존재하는 ID입니다 (서버)."; return; }
-                    await setDoc(doc(db, "users", id), { pw: pw, g: 10000, h: [], c: null, i: window.inventory });
-                } catch(e) { console.log(e); }
-            }
-            loginSuccess(id, pw, { g: 10000, h: [], c: null, i: window.inventory });
+    window.toggleJoinMode = () => {
+        isJoinMode = !isJoinMode;
+        const nickInput = document.getElementById('inp-nick');
+        const actionBtn = document.querySelector('.btn-login');
+        const modeBtn = document.querySelector('.btn-join');
+        
+        if(isJoinMode) {
+            nickInput.style.display = 'block';
+            actionBtn.innerText = "가입 완료";
+            modeBtn.innerText = "로그인으로 돌아가기";
         } else {
-            let serverData = null;
-            let localData = null;
-
-            if(db) {
-                try {
-                    const snap = await getDoc(doc(db, "users", id));
-                    if(snap.exists()) {
-                        const dbData = snap.data();
-                        if(dbData.pw === pw) serverData = dbData; 
-                        else { msg.innerText = "비밀번호가 틀렸습니다."; return; }
-                    }
-                } catch(e) {}
-            }
-
-            if(!serverData) {
-                const local = localStorage.getItem(localKey);
-                if(local) {
-                    const parsed = JSON.parse(local);
-                    if(parsed.pw && parsed.pw !== pw) { msg.innerText = "비밀번호가 틀렸습니다 (로컬)."; return; }
-                    localData = parsed;
-                }
-            }
-
-            const finalData = serverData || localData;
-            if(finalData) { loginSuccess(id, pw, finalData); } else { msg.innerText = "존재하지 않는 ID입니다."; }
+            nickInput.style.display = 'none';
+            actionBtn.innerText = "이메일 로그인";
+            modeBtn.innerText = "회원가입 (이메일)";
         }
     };
 
-    function loginSuccess(nick, pw, data) {
-        window.nickname = nick; window.password = pw; 
-        window.gold = data.g || 10000; window.myHistory = data.h || []; window.currentEmoji = data.c || null; 
-        if(data.i && data.i.length > 5) window.inventory = data.i.slice(0, 5);
-        else window.inventory = data.i || window.inventory;
+    window.processAuth = async () => {
+        const email = document.getElementById('inp-email').value;
+        const pw = document.getElementById('inp-pw').value;
+        const nick = document.getElementById('inp-nick').value.trim();
+        const msg = document.getElementById('auth-msg');
+
+        if(!email || !pw) { msg.innerText = "이메일과 비밀번호를 입력하세요."; return; }
+
+        try {
+            if(isJoinMode) {
+                // 회원가입
+                if(!nick) { msg.innerText = "닉네임을 입력해주세요."; return; }
+                if(nick.length < 2) { msg.innerText = "닉네임은 2글자 이상이어야 합니다."; return; }
+                
+                msg.innerText = "닉네임 중복 확인 중...";
+                const isDuplicate = await checkNicknameDuplicate(nick);
+                if(isDuplicate) {
+                    msg.innerText = "이미 존재하는 닉네임입니다.";
+                    return;
+                }
+
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
+                const user = userCredential.user;
+                
+                await setDoc(doc(db, "users", user.uid), {
+                    nickname: nick,
+                    g: 10000, h: [], c: null, i: window.inventory, b: {}, r: []
+                });
+                
+                msg.innerText = "가입 성공! 접속 중...";
+            } else {
+                // 로그인
+                await signInWithEmailAndPassword(auth, email, pw);
+            }
+        } catch(error) {
+            console.error(error);
+            if(error.code === 'auth/wrong-password') msg.innerText = "비밀번호가 틀렸습니다.";
+            else if(error.code === 'auth/user-not-found') msg.innerText = "없는 이메일입니다.";
+            else if(error.code === 'auth/email-already-in-use') msg.innerText = "이미 사용 중인 이메일입니다.";
+            else if(error.code === 'auth/weak-password') msg.innerText = "비밀번호는 6자 이상이어야 합니다.";
+            else msg.innerText = "오류: " + error.message;
+        }
+    };
+
+    window.changeNickname = async () => {
+        const newNick = prompt("변경할 닉네임을 입력하세요 (중복 불가):");
+        if(!newNick || newNick.trim().length < 2) return;
         
-        window.book = data.b || {};
-        window.claimedRewards = data.r || [];
+        const targetNick = newNick.trim();
+        if(targetNick === window.nickname) return;
 
-        localStorage.setItem('lastUser', JSON.stringify({ nick: nick, pw: pw }));
-        localStorage.setItem('catSave_' + nick, JSON.stringify(data));
-        document.getElementById('nick-modal').style.display = 'none';
-        addLog(`환영합니다, 마스터 ${nick}님!`); updateUI();
-        syncGlobal(); // 로그인 직후 한 번 랭킹 로드
-    }
+        if(confirm(`'${targetNick}'(으)로 변경하시겠습니까?`)) {
+            const isDuplicate = await checkNicknameDuplicate(targetNick);
+            if(isDuplicate) {
+                alert("이미 누군가 사용 중인 닉네임입니다 😢");
+            } else {
+                const newHistory = window.myHistory.map(h => ({ ...h, owner: targetNick }));
+                
+                window.nickname = targetNick;
+                window.myHistory = newHistory;
+                
+                updateUI();
+                await saveGame(); 
+                
+                if(window.currentUserUid && db) {
+                    await updateDoc(doc(db, "users", window.currentUserUid), { nickname: targetNick });
+                }
+                alert("닉네임 변경 완료!");
+            }
+        }
+    };
 
-    window.logout = () => { localStorage.removeItem('lastUser'); location.reload(); };
-    
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            window.currentUserUid = user.uid;
+            document.getElementById('nick-modal').style.display = 'none';
+            
+            const docRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(docRef);
+            
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                window.nickname = data.nickname || "Unknown"; 
+                window.gold = data.g || 10000;
+                window.currentEmoji = data.c || null;
+                window.myHistory = data.h || [];
+                window.book = data.b || {};
+                window.claimedRewards = data.r || [];
+                
+                if(data.i && data.i.length > 5) window.inventory = data.i.slice(0, 5);
+                else window.inventory = data.i || window.inventory;
+
+                localStorage.setItem('catSave_' + window.nickname, JSON.stringify(data));
+                
+                addLog(`환영합니다, ${window.nickname}님!`);
+                updateUI();
+                syncGlobal();
+            } else {
+                // 구글 로그인 첫 접속 시 (DB 없음) -> 기본 데이터 생성
+                // 닉네임 자동 생성 (Player_ + UID 5자리)
+                window.nickname = "Player_" + user.uid.slice(0,5);
+                saveGame();
+                updateUI();
+                addLog("새 계정이 생성되었습니다. 닉네임을 변경해보세요!");
+            }
+        } else {
+            document.getElementById('nick-modal').style.display = 'flex';
+        }
+    });
+
+    window.logout = () => { 
+        signOut(auth).then(() => {
+            location.reload(); 
+        });
+    };
+
     window.resetGame = () => {
-        if(confirm("정말로 데이터를 초기화하시겠습니까? (복구 불가)")) {
-            window.gold = 10000; window.currentEmoji = null; window.myHistory = []; 
+        if(confirm("초기화하시겠습니까? (닉네임, 도감, 랭킹 기록은 유지됩니다)")) {
+            window.gold = 10000; window.currentEmoji = null; 
             window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null }));
-            window.book = {}; window.claimedRewards = [];
             saveGame(); updateUI(); addLog("데이터가 초기화되었습니다.");
         }
     };
@@ -853,13 +896,6 @@
     async function init() {
         history.replaceState(null, '', location.href);
         history.pushState({ main: true }, '', '');
-
-        const last = localStorage.getItem('lastUser');
-        if (last) {
-            const user = JSON.parse(last);
-            document.getElementById('inp-nick').value = user.nick;
-            document.getElementById('inp-pw').value = user.pw;
-        }
         updateUI();
     }
     init();
