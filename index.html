@@ -3,114 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>이모지 진화 : 100 Collection</title>
+    <title>이모지 진화 : The Final Collection</title>
     <style>
         :root {
-            --common: #b2bec3; --magic: #00cec9; --rare: #a29bfe; --epic: #fab1a0; --legendary: #ff7675;
-            --success: #2ecc71; --stay: #f1c40f; --destroy: #e74c3c; --bg: #0d0d0d; --panel: #111; --border: #333;
-            --purple-btn: #9c27b0;
-            --tier-f: #636e72; --tier-c: #00cec9; --tier-b: #a29bfe; --tier-a: #fab1a0; --tier-s: #ff7675; --tier-ss: #ffeaa7; --tier-sss: #fdcb6e;
+            --common: #b2bec3; --magic: #00cec9; --rare: #a29bfe; --epic: #ff4757; --legendary: #ffd700;
+            --bg: #0d0d0d; --panel: #161616; --border: #333;
+            --success: #2ecc71; --stay: #f1c40f; --destroy: #e74c3c; --red-alert: #ff4757;
+            --tier-f: #636e72; --tier-c: #00cec9; --tier-b: #a29bfe; --tier-a: #ff4757; --tier-s: #ff4757; --tier-ss: #ffd700; --tier-sss: #fdcb6e;
         }
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; background-color: var(--bg); color: #eee; margin: 0; padding: 10px; overflow-x: hidden; }
-        .game-container { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+        .game-container { width: 100%; max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
         
-        .main-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
-        .left-col, .right-col { display: flex; flex-direction: column; gap: 8px; }
+        /* 헤더 */
+        .game-header { display: flex; justify-content: space-between; align-items: flex-end; padding: 5px 2px; border-bottom: 1px solid #222; margin-bottom: 2px; }
+        .header-left { display: flex; flex-direction: column; position: relative; }
+        .game-title { font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: -0.5px; margin: 0; line-height: 1; }
+        .game-author { font-size: 0.5rem; color: #555; position: absolute; bottom: -8px; left: 2px; font-weight: bold; }
+        .header-right { display: flex; align-items: center; gap: 6px; }
+        .id-box { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 4px 10px; font-size: 0.7rem; font-weight: bold; color: #ccc; display: flex; align-items: center; justify-content: center; }
+        .header-btn { background: #222; border: 1px solid #444; color: #888; border-radius: 6px; padding: 5px 8px; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .header-btn:hover { background: #333; color: #fff; }
 
-        .canvas-area { height: 180px; background: #1a1a1a; border: 2px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        /* 메인 레이아웃 */
+        .main-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; }
+        .left-col { display: flex; flex-direction: column; gap: 8px; }
+        .right-col { display: flex; flex-direction: column; gap: 8px; }
+
+        /* 캔버스 & 로그 */
+        .canvas-area { height: 180px; background: #1a1a1a; border: 2px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: inset 0 0 20px #000; flex-shrink: 0; }
         .canvas-overlay { position: absolute; top: 0; left: 0; width: 100%; padding: 8px 10px; box-sizing: border-box; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%); display: flex; justify-content: space-between; align-items: center; z-index: 5; }
         #overlay-grade { font-size: 0.65rem; font-weight: bold; }
         #overlay-name-level { font-size: 0.8rem; font-weight: 900; }
-        .emoji-wrap { display: flex; align-items: center; gap: 10px; font-size: 4.2rem; }
+        .glow-legendary { animation: text-glow 1.5s infinite alternate; }
+        @keyframes text-glow { from { text-shadow: 0 0 5px #ffd700; } to { text-shadow: 0 0 20px #ffd700; } }
+        .emoji-wrap { display: flex; align-items: center; gap: 10px; font-size: 4.2rem; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); }
         .deco-icon { font-size: 1.5rem; animation: bounce 1s infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-        .in-game-log { height: 180px; background: #050505; border: 1px solid #e74c3c44; border-radius: 10px; padding: 10px; font-size: 0.75rem; overflow-y: auto; color: #aaa; line-height: 1.5; scroll-behavior: smooth; }
+        .in-game-log { height: 180px; background: #080808; border: 1px solid #222; border-radius: 10px; padding: 10px; font-size: 0.75rem; color: #999; line-height: 1.5; overflow-y: auto; scroll-behavior: smooth; box-shadow: inset 0 0 5px #000; }
 
+        /* 정보 패널 */
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
-        .info-cell { background: var(--panel); padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+        .info-cell { background: var(--panel); padding: 6px; display: flex; flex-direction: column; gap: 2px; }
         .info-label { font-size: 0.55rem; color: #666; }
-        .info-value { font-weight: bold; color: #fff; font-size: 0.75rem; }
+        .info-value { font-weight: bold; color: #fff; font-size: 0.7rem; }
 
-        .gauge-mini { background: var(--panel); padding: 8px; border-radius: 10px; border: 1px solid var(--border); }
-        .gauge-bar { width: 100%; height: 8px; background: #222; border-radius: 4px; display: flex; overflow: hidden; margin: 4px 0; }
+        .gauge-mini { background: var(--panel); padding: 6px; border-radius: 10px; border: 1px solid var(--border); }
+        .gauge-bar { width: 100%; height: 6px; background: #222; border-radius: 4px; display: flex; overflow: hidden; margin: 4px 0; }
         .gauge-seg { height: 100%; transition: width 0.3s; }
         .gauge-text { display: flex; justify-content: space-between; font-size: 0.45rem; font-weight: bold; }
+        .wealth-box { background: #222; padding: 8px; border-radius: 10px; text-align: center; border: 1px solid #ffd70044; color: #ffd700; font-weight: 900; font-size: 1.1rem; text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
 
-        .wealth-box { background: #222; padding: 10px; border-radius: 10px; text-align: center; border: 1px solid #ffd70044; color: #ffd700; font-weight: 900; font-size: 1.2rem; }
-
+        /* 버튼 */
         .btn-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        button { padding: 10px 5px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.1s; position: relative; overflow: hidden; }
-        button:disabled { opacity: 0.15; filter: grayscale(1); cursor: not-allowed; }
-        .btn-evolve { background: #6c5ce7; color: white; grid-column: span 2; display: flex; flex-direction: column; align-items: center; padding: 10px; }
-        .btn-buy { background: var(--success); color: white; }
+        button { border: none; font-weight: bold; cursor: pointer; transition: 0.1s; position: relative; overflow: hidden; font-family: inherit; }
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.3; filter: grayscale(1); cursor: not-allowed; }
+        .btn-action { padding: 12px 5px; border-radius: 8px; color: white; box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+        .btn-action:active { box-shadow: 0 0 0 rgba(0,0,0,0); transform: translateY(3px); }
+        .btn-evolve { background: #6c5ce7; grid-column: span 2; display: flex; flex-direction: column; align-items: center; }
+        .btn-buy { background: var(--success); }
         .btn-sell { background: var(--stay); color: #333; }
-        .btn-gene { background: #333; color: #777; font-size: 0.7rem; grid-column: span 2; }
-        .btn-nav { background: #2d3436; color: white; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50px; }
-        
-        .world-rank-btn { 
-            background: #000; border: 2px solid var(--purple-btn); padding: 12px; border-radius: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-            color: white; cursor: pointer; margin-top: 5px; transition: 0.3s; box-shadow: 0 0 10px rgba(156, 39, 176, 0.2); 
-        }
-        .world-rank-left { text-align: left; }
-        .world-rank-label { color: var(--purple-btn); font-size: 0.65rem; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
-        .world-rank-val { font-size: 0.8rem; font-weight: bold; color: #ddd; }
-        .world-rank-icon { font-size: 2rem; margin-left: 10px; animation: float 2s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+        .btn-gene { background: #333; color: #bbb; font-size: 0.75rem; grid-column: span 2; padding: 10px; }
+        .menu-btn-square { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #ccc; font-size: 0.65rem; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 3px 0 #000; position: relative; font-weight: bold; aspect-ratio: 1.2/1; }
+        .menu-btn-square:hover { background: #222; color: #fff; border-color: #555; }
+        .menu-btn-square:active { transform: translateY(3px); box-shadow: none; }
+        .menu-icon { font-size: 1.4rem; margin-bottom: -2px; }
 
-        .my-rank-btn { background: #1a1a1a; border: 1px solid #444; color: #aaa; }
+        /* 랭킹 대시보드 */
+        .rank-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 2px; }
+        .rank-panel { background: #111; border: 1px solid #333; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; height: 60px; }
+        .rank-panel:active { transform: scale(0.98); background: #1a1a1a; }
+        .rank-label { font-size: 0.6rem; font-weight: 900; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .rank-value { font-size: 0.7rem; color: #ddd; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 2; }
+        .rank-icon { position: absolute; right: 8px; bottom: 5px; font-size: 1.8rem; opacity: 0.9; animation: float 2.5s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .panel-global { border-color: #9c27b0; box-shadow: 0 4px 0 #2c0e33; }
+        .panel-global .rank-label { color: #9c27b0; }
+        .panel-local { border-color: #00cec9; box-shadow: 0 4px 0 #003635; }
+        .panel-local .rank-label { color: #00cec9; }
 
+        /* 공통 UI */
         .full-page { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        
-        .inv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; margin: 20px 0; }
-        .inv-slot { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; aspect-ratio: 1/1; }
-        .inv-slot.locked { background: #0a0a0a; color: #444; border-style: dashed; font-size: 0.5rem; text-align: center; }
-        .inv-slot.selected { border: 2px solid #fff; box-shadow: 0 0 10px #fff; z-index: 10; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0px #fff; } 50% { box-shadow: 0 0 8px #fff; } 100% { box-shadow: 0 0 0px #fff; } }
+        .modal-header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 15px; gap: 5px; }
+        .modal-title { color: #ffd700; margin: 0; font-size: 1.3rem; text-shadow: 0 0 10px rgba(255,215,0,0.3); }
+        .close-btn { width: 100%; padding: 12px; background: #333; color: white; border-radius: 10px; margin-top: 15px; font-size: 0.9rem; }
+        .status-dot { position: absolute; top: 5px; right: 5px; width: 8px; height: 8px; background: var(--red-alert); border-radius: 50%; box-shadow: 0 0 5px var(--red-alert); display: none; animation: blink 1s infinite alternate; }
+        @keyframes blink { from { opacity: 0.7; } to { opacity: 1; box-shadow: 0 0 10px var(--red-alert); } }
 
+        /* 인벤토리 */
+        .inv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; }
+        .inv-slot { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; aspect-ratio: 1/1; transition: 0.2s; }
+        .inv-slot.selected { border: 2px solid #fff; box-shadow: 0 0 10px #fff; z-index: 10; }
         .inv-emoji { font-size: 1.7rem; }
         .inv-tag { position: absolute; bottom: 2px; width: 100%; text-align: center; font-size: 0.45rem; color: #888; font-weight: bold; }
-        .inv-status-bar { background: #222; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; cursor: pointer; transition: 0.2s; }
-        .inv-status-bar:active { transform: scale(0.98); background: #333; }
-        .inv-current-info { display: flex; align-items: center; gap: 10px; }
-        .inv-current-icon { font-size: 2rem; }
-        .inv-hint { font-size: 0.7rem; color: #666; text-align: center; margin-bottom: 10px; background: #111; padding: 8px; border-radius: 6px; }
+        .inv-status-bar { background: #222; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; cursor: pointer; }
 
+        /* 도감 */
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .chart-box { background: #111; border: 1px solid #333; border-radius: 8px; padding: 8px; }
+        .chart-title { font-size: 0.7rem; color: #888; text-align: center; margin-bottom: 6px; font-weight: bold; border-bottom: 1px solid #222; padding-bottom: 4px; }
+        .rate-table { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
+        /* ⭐ 도감 셀 중앙 정렬 */
+        .rate-table td { padding: 3px 2px; text-align: center !important; vertical-align: middle; border-bottom: 1px solid #222; color: #aaa; }
+        .book-compact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 2px; }
+        .book-card-mini { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; padding: 4px; position: relative; width: 100%; aspect-ratio: 0.85/1; box-sizing: border-box; overflow: hidden; cursor: pointer; transition: all 0.2s ease; }
+        .book-card-mini:hover { transform: translateY(-3px); background: #252525; }
+        .book-legendary { border: 1px solid #ffd700 !important; box-shadow: 0 0 5px rgba(255, 215, 0, 0.2); }
+        .book-mini-header { font-size: 0.5rem; font-weight: bold; text-align: center; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #555; height: 12px; }
+        .book-mini-slots { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1px; flex: 1; }
+        .book-mini-slot { background: #000; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .silhouette { filter: brightness(0); opacity: 0.3; }
+        .book-completed { border-color: #ffd700; box-shadow: 0 0 5px rgba(255,215,0,0.2); }
+        .mini-reward-dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background: var(--red-alert); border-radius: 50%; border: 1px solid #fff; z-index: 10; animation: blink 0.8s infinite alternate; }
+
+        /* ⭐ 랭킹 탭 */
+        .rank-tabs { display: flex; gap: 5px; margin-bottom: 10px; justify-content: center; width: 100%; }
+        .rank-tab { flex: 1; background: #222; border: 1px solid #333; color: #888; padding: 8px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .rank-tab.active { background: #333; color: #fff; border-color: #666; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        
+        /* ⭐ 타이머 박스 디자인 (둥근 박스 + 파란색) */
+        .reset-timer-box { 
+            font-size: 0.65rem; color: #74b9ff; font-weight: bold; 
+            text-align: center; margin-top: 5px; 
+            border: 1px solid #74b9ff; border-radius: 12px; padding: 4px 10px; 
+            background: rgba(116, 185, 255, 0.1); display: inline-block;
+        }
+
+        /* 희귀도 랭킹 카드 */
+        .rank-card-styled { display: grid; grid-template-columns: 1fr 1fr 4fr; background: #111; border-radius: 8px; margin-bottom: 6px; border: 1px solid #222; align-items: stretch; overflow: hidden; position: relative; height: 74px; }
+        .rank-col-rank { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-right: 1px solid #222; font-size: 0.8rem; font-weight: 900; color: #666; }
+        .rank-col-icon { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-right: 1px solid #222; font-size: 1.8rem; }
+        .rank-col-info { padding: 4px 10px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        
+        /* ⭐ 자산 랭킹 카드 (1:2:3 비율) */
+        .rank-card-wealth { display: grid; grid-template-columns: 0.8fr 1.5fr 2fr; background: #111; border-radius: 8px; margin-bottom: 6px; border: 1px solid #222; align-items: stretch; overflow: hidden; position: relative; height: 50px; }
+        
+        .rank-user { font-weight: 900; font-size: 0.8rem; color: #fff; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+        .rank-detail { font-size: 0.65rem; margin-bottom: 2px; font-weight: bold; }
+        .rank-meta-row { display: flex; align-items: center; gap: 5px; font-size: 0.65rem; color: #aaa; margin-bottom: 2px; }
+        .rank-prob-thin { font-weight: 300; }
+        .rank-date { position: absolute; top: 8px; right: 12px; font-size: 0.55rem; color: #666; font-weight: normal; letter-spacing: 0.5px; }
+
+        .tier-badge { display: inline-block; background: #222; border: 1px solid #444; border-radius: 3px; padding: 1px 4px; font-weight: bold; font-size: 0.6rem; line-height: 1; }
+        .rank-gold { font-size: 0.6rem; color: #ffd700; font-weight: bold; }
+
+        .rank-glow-1 { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); border: 1px solid #ffd700 !important; z-index: 2; }
+        .rank-glow-2 { box-shadow: 0 0 15px rgba(255, 71, 87, 0.3); border: 1px solid #ff4757 !important; z-index: 2; }
+        .rank-glow-3 { box-shadow: 0 0 15px rgba(52, 152, 219, 0.3); border: 1px solid #3498db !important; z-index: 2; }
+
+        /* ⭐ EX 티어 CSS Fix (inline-block) */
+        .tier-ex-gradient { 
+            background: linear-gradient(135deg, #00cec9, #a29bfe, #e056fd); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            font-weight: 900; 
+            display: inline-block; /* 중앙 정렬 개선 */
+            filter: drop-shadow(0 0 3px rgba(162, 155, 254, 0.5)); 
+            animation: ex-pulse 2s infinite alternate; 
+        }
+        .tier-badge-ex { border: 1px solid #a29bfe !important; background: linear-gradient(135deg, rgba(0, 206, 201, 0.1), rgba(162, 155, 254, 0.1)); }
+        @keyframes ex-pulse { from { filter: drop-shadow(0 0 2px rgba(0, 206, 201, 0.5)); } to { filter: drop-shadow(0 0 8px rgba(224, 86, 253, 0.8)); } }
+
+        /* 자산 배너 */
+        .my-max-asset-banner { background: linear-gradient(90deg, #111, #222); border: 1px solid #ffd700; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: inset 0 0 10px rgba(255,215,0,0.1); }
+        .banner-label { font-size: 0.6rem; color: #ffd700; font-weight: bold; margin-bottom: 2px; }
+        .banner-value { font-size: 1.1rem; color: #fff; font-weight: 900; text-shadow: 0 0 5px rgba(255,215,0,0.3); }
+        .banner-date { font-size: 0.55rem; color: #666; }
+
+        /* 모달 */
         #nick-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: flex; align-items: center; justify-content: center; }
         .login-box { background:#1a1a1a; padding:25px; border-radius:15px; border:2px solid #e74c3c; text-align:center; width:85%; max-width:340px; }
-        .login-input { width:100%; padding:12px; background:#000; border:1px solid #444; color:white; border-radius:8px; margin: 5px 0; box-sizing:border-box; font-size: 1rem; }
-        .login-btn { width:48%; padding:12px; border:none; border-radius:8px; font-weight:bold; margin-top: 10px; font-size: 0.9rem; cursor: pointer; }
-        .btn-join { background: #00cec9; color: #000; }
-        .btn-login { background: #e74c3c; color: white; }
-        /* ⭐ 구글 로그인 버튼 스타일 */
-        .btn-google { width:100%; background:#fff; color:#333; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px; }
-        .btn-google:hover { background:#f1f1f1; }
-        
-        .glow-legendary { animation: text-glow 1.5s infinite alternate; }
-        @keyframes text-glow { from { text-shadow: 0 0 5px #ff7675; } to { text-shadow: 0 0 20px #ff7675; } }
-        
-        .rank-card-slim { display: grid; grid-template-columns: 45px 45px 1fr; gap: 5px; background: #111; border-radius: 10px; margin-bottom: 8px; border: 1px solid #222; align-items: stretch; overflow: hidden; }
-        .rank-block { display: flex; align-items: center; justify-content: center; background: #1a1a1a; font-weight: 900; font-size: 0.8rem; aspect-ratio: 1/1; }
-        .rank-info-block { padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; font-size: 0.7rem; }
-        .rank-glow-1 { box-shadow: 0 0 20px gold; border-color: gold !important; }
-        .tier-badge { font-weight: 900; padding: 1px 4px; border-radius: 4px; background: #222; margin-right: 4px; border: 1px solid #444; }
-        
-        .rate-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
-        .rate-table th, .rate-table td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
-        .rate-table th { background: #222; color: #aaa; }
-        
-        .book-compact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 5px; }
-        .book-card-mini { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; padding: 5px; position: relative; width: 100%; min-width: 0; aspect-ratio: 0.85/1; box-sizing: border-box; overflow: hidden; }
-        .book-mini-header { font-size: 0.65rem; font-weight: bold; text-align: center; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #777; height: 14px; line-height: 14px; }
-        .book-mini-slots { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px; flex: 1; width: 100%; height: 100%; }
-        .book-mini-slot { background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; position: relative; overflow: hidden; width: 100%; height: 100%; }
-        .silhouette { filter: brightness(0); opacity: 0.3; }
-        .hidden-mark { font-size: 0.8rem; color: #333; font-weight: bold; }
-        .book-mini-completed { border: 1px solid #ffd700; box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); animation: goldPulseMini 2s infinite; cursor: pointer; }
-        .mini-reward-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: #ffd700; border-radius: 50%; border: 1px solid #000; z-index: 10; }
-
-        @keyframes goldPulseMini { 0% { box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); } 50% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.6); } 100% { box-shadow: 0 0 2px rgba(255, 215, 0, 0.2); } }
+        .login-input { width:100%; padding:12px; background:#000; border:1px solid #444; color:white; border-radius:8px; margin: 5px 0; box-sizing:border-box; }
+        .btn-google { width:100%; background:#fff; color:#333; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px; padding: 12px; border-radius: 8px; }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
@@ -119,32 +184,40 @@
 <div id="nick-modal">
     <div class="login-box">
         <h2 style="color:#ffd700; margin-top:0;">GAME START</h2>
-        
-        <button class="login-btn btn-google" onclick="googleLogin()">
+        <button class="btn-google" onclick="googleLogin()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" alt="G">
             <span>Google 계정으로 시작</span>
         </button>
-
         <div style="display:flex; align-items:center; gap:10px; margin:15px 0; color:#555; font-size:0.7rem;">
             <div style="flex:1; height:1px; background:#333;"></div> OR <div style="flex:1; height:1px; background:#333;"></div>
         </div>
-
-        <input type="email" id="inp-email" class="login-input" placeholder="이메일 주소" maxlength="50">
-        <input type="password" id="inp-pw" class="login-input" placeholder="비밀번호 (6자 이상)" maxlength="30">
-        <input type="text" id="inp-nick" class="login-input" placeholder="닉네임 (중복 불가)" style="display:none;" maxlength="10">
-        
-        <div style="display:flex; justify-content:space-between;">
-            <button class="login-btn btn-join" onclick="toggleJoinMode()">회원가입 (이메일)</button>
-            <button class="login-btn btn-login" onclick="processAuth()">이메일 로그인</button>
+        <input type="email" id="inp-email" class="login-input" placeholder="이메일 주소">
+        <input type="password" id="inp-pw" class="login-input" placeholder="비밀번호">
+        <input type="text" id="inp-nick" class="login-input" placeholder="닉네임" style="display:none;">
+        <div style="display:flex; justify-content:space-between; gap:10px; margin-top:10px;">
+            <button class="btn-action" style="flex:1; background:#00cec9; color:#000;" onclick="toggleJoinMode()" id="btn-mode-switch">회원가입</button>
+            <button class="btn-action" style="flex:1; background:#e74c3c;" onclick="processAuth()" id="btn-auth-action">로그인</button>
         </div>
         <div id="auth-msg" style="color:#ff7675; font-size:0.75rem; margin-top:10px; height:15px;"></div>
     </div>
 </div>
 
 <div class="game-container">
+    <header class="game-header">
+        <div class="header-left">
+            <h1 class="game-title">이모지 진화</h1>
+            <div class="game-author">by.tovi</div>
+        </div>
+        <div class="header-right">
+            <div class="id-box" id="my-id-label">ID: -</div>
+            <button class="header-btn" onclick="changeNickname()">✏️</button>
+            <button class="header-btn" onclick="logout()">OUT</button>
+        </div>
+    </header>
+
     <div class="main-split">
         <div class="left-col">
-            <div class="canvas-area" id="display-area" title="아이템 꺼내기/넣기">
+            <div class="canvas-area" id="display-area" title="아이템 조작">
                 <div class="canvas-overlay">
                     <span id="overlay-grade">-</span>
                     <span id="overlay-name-level">준비됨</span>
@@ -156,13 +229,6 @@
                 </div>
             </div>
             <div id="game-log" class="in-game-log"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center;">
-                    <div id="my-id-label" style="font-size:0.6rem; color:#444; padding-left:5px;">ID: -</div>
-                    <button onclick="changeNickname()" style="background:none; border:none; cursor:pointer; font-size:0.7rem; padding:0 5px;" title="닉네임 변경">✏️</button>
-                </div>
-                <button onclick="logout()" style="background:#333; color:#aaa; font-size:0.6rem; padding:2px 8px;">로그아웃</button>
-            </div>
         </div>
 
         <div class="right-col">
@@ -177,63 +243,106 @@
                 <div class="gauge-bar"><div id="seg-s" class="gauge-seg" style="background:var(--success); width:0%"></div><div id="seg-m" class="gauge-seg" style="background:var(--stay); width:0%"></div><div id="seg-b" class="gauge-seg" style="background:var(--destroy); width:0%"></div></div>
             </div>
             <div class="wealth-box" id="gold-display">0 🟡</div>
+            
             <div class="btn-stack">
-                <button id="btn-evolve" class="btn-evolve" onclick="evolve()"><span>강화</span><small id="evolve-cost">-</small></button>
-                <button id="btn-buy" class="btn-buy" onclick="fetchNew()">📦 소환 (1k)</button>
-                <button id="btn-sell" class="btn-sell" onclick="sellItem()">💰 판매</button>
-                <button id="btn-gene" class="btn-gene" onclick="mutateGene()">🧬 변이 (500k)</button>
+                <button id="btn-evolve" class="btn-action btn-evolve" onclick="evolve()"><span>강화</span><small id="evolve-cost" style="font-size:0.6rem; opacity:0.8">-</small></button>
+                <button id="btn-buy" class="btn-action btn-buy" onclick="fetchNew()">📦 소환 (1k)</button>
+                <button id="btn-sell" class="btn-action btn-sell" onclick="sellItem()">💰 판매</button>
+                <button id="btn-gene" class="btn-action btn-gene" onclick="mutateGene()">🧬 변이 (500k)</button>
                 
-                <button class="btn-nav" onclick="openInventory()">🎒 인벤토리</button>
-                
-                <button class="btn-nav my-rank-btn" id="btn-my-rank" onclick="openMyHistory()">
-                    <span>📜 나의 전당</span>
-                    <span id="my-rank-icon" style="font-size:1.2rem; margin-top:2px;"></span>
+                <button class="menu-btn-square" onclick="openInventory()">
+                    <span class="menu-icon">🎒</span>
+                    <span>인벤토리</span>
+                </button>
+                <button class="menu-btn-square" onclick="openBook()" id="btn-main-book">
+                    <span class="menu-icon">📕</span>
+                    <span>도감</span>
+                    <div id="book-alert" class="status-dot"></div>
                 </button>
             </div>
         </div>
     </div>
     
-    <div class="world-rank-btn" onclick="openGlobalRanking()">
-        <div class="world-rank-left">
-            <div class="world-rank-label">🏆 GLOBAL NO.1</div>
-            <div id="world-best-info" class="world-rank-val">데이터 로딩 중...</div>
+    <div class="rank-dashboard">
+        <div class="rank-panel panel-global" onclick="openGlobalRanking()">
+            <div class="rank-label">🏆 글로벌 랭킹</div>
+            <div id="world-best-info" class="rank-value">로딩 중...</div>
+            <div id="world-best-icon" class="rank-icon">👑</div>
         </div>
-        <div id="world-best-icon" class="world-rank-icon">👑</div>
+        <div class="rank-panel panel-local" onclick="openMyHistory()">
+            <div class="rank-label">👑 MY BEST</div>
+            <div id="my-best-info" class="rank-value">기록 없음</div>
+            <div class="rank-icon" id="my-best-icon">👻</div>
+        </div>
     </div>
-
-    <div style="display:flex; justify-content:space-between; padding:0 10px;">
-        <button onclick="openBook()" style="background:none; color:#555; font-size:0.65rem;">📕 도감/확률 (100종)</button>
-        <button onclick="resetGame()" style="background:none; color:#222; font-size:0.65rem;">데이터 초기화</button>
-    </div>
+    
+    <button onclick="resetGame()" style="width:100%; background:none; color:#333; font-size:0.6rem; margin-top:5px; padding:5px;">데이터 초기화</button>
 </div>
 
 <div id="inv-page" class="full-page">
-    <h2 style="color:#fff; text-align:center; margin-bottom:10px;">🎒 개인 인벤토리</h2>
-    <div class="inv-status-bar" onclick="swapWithMain()" title="클릭 시 선택한 아이템과 교체">
+    <div class="modal-header"><h2 class="modal-title">🎒 인벤토리</h2></div>
+    <div class="inv-status-bar" onclick="swapWithMain()">
         <div class="inv-current-info">
             <div id="inv-current-emoji" class="inv-current-icon">🔒</div>
-            <div style="display:flex; flex-direction:column; justify-content:center;">
-                <span style="font-size:0.6rem; color:#aaa;">현재 장착 중 (클릭 교체)</span>
-                <span id="inv-current-name" style="font-weight:bold; font-size:0.9rem; color:#fff;">없음</span>
+            <div>
+                <span style="font-size:0.6rem; color:#aaa;">현재 장착 중</span>
+                <div id="inv-current-name" style="font-weight:bold; font-size:0.9rem; color:#fff;">없음</div>
             </div>
         </div>
         <div id="inv-total-gold" style="font-size:1.2rem; font-weight:bold; color:#ffd700;">0 🟡</div>
     </div>
-    <div class="inv-hint">💡 팁: 아이템 선택 후 '재클릭'하거나 위 '장착 중' 바를 누르면 교체됩니다.</div>
-    <div id="inv-grid-list" class="inv-grid"></div>
-    <button style="width:100%; padding:15px; background:#333; color:white; border-radius:10px; margin-top:15px;" onclick="closePage('inv-page')">창 닫기</button>
+    <div class="inv-grid" id="inv-grid-list"></div>
+    <button class="close-btn" onclick="closePage('inv-page')">닫기</button>
 </div>
 
 <div id="book-page" class="full-page">
-    <h2 style="color:#ffd700; text-align:center;">📕 시스템 도감</h2>
-    <div style="font-size:0.8rem; color:#888; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:10px;">📊 등급별 출현 확률</div>
-    <div id="rate-table-container"></div>
-    <div style="font-size:0.8rem; color:#888; border-bottom:1px solid #333; padding-bottom:5px; margin:20px 0 10px;">🧬 진화 도감 (100 Collection)</div>
+    <div class="modal-header"><h2 class="modal-title">📕 도감 컬렉션</h2></div>
+    <div class="chart-grid">
+        <div class="chart-box">
+            <div class="chart-title">희귀도(Tier) 확률</div>
+            <table class="rate-table">
+                <tr><td class="tier-ex-gradient">EX</td><td>0.000001% ↓</td></tr>
+                <tr><td style="color:var(--tier-sss)">SSS</td><td>0.01% ↓</td></tr>
+                <tr><td style="color:var(--tier-ss)">SS</td><td>0.1% ↓</td></tr>
+                <tr><td style="color:var(--tier-s)">S</td><td>1.0% ↓</td></tr>
+                <tr><td style="color:var(--tier-a)">A</td><td>5.0% ↓</td></tr>
+                <tr><td style="color:var(--tier-b)">B</td><td>15.0% ↓</td></tr>
+                <tr><td style="color:var(--tier-c)">C</td><td>30.0% ↓</td></tr>
+                <tr><td style="color:var(--tier-f)">F</td><td>30.0% ↑</td></tr>
+            </table>
+        </div>
+        <div class="chart-box">
+            <div class="chart-title">등급 출현 확률</div>
+            <table class="rate-table" id="grade-rate-table"></table>
+        </div>
+    </div>
+    <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px; text-align:center;">🧬 수집 현황 (등급순 정렬)</div>
     <div id="book-list" class="book-compact-grid"></div>
-    <br><button style="width:100%; padding:15px; background:#333; color:white; border-radius:10px;" onclick="closePage('book-page')">닫기</button>
+    <button class="close-btn" onclick="closePage('book-page')">닫기</button>
 </div>
 
-<div id="rank-page" class="full-page"><h2 id="rank-title" style="color:#ffd700; text-align:center;">전당</h2><div id="rank-list"></div><button style="width:100%; padding:15px; background:#333; color:white; border-radius:10px;" onclick="closePage('rank-page')">닫기</button></div>
+<div id="rank-page" class="full-page">
+    <div class="modal-header">
+        <h2 id="rank-title" class="modal-title">전당</h2>
+        <div id="reset-timer" class="reset-timer-box">주간랭킹 갱신까지 0일 0시간 남음</div>
+    </div>
+    
+    <div class="rank-tabs" id="rank-tabs-container" style="display:none;">
+        <button class="rank-tab active" onclick="switchRankTab('rarity')">💎 희귀도 랭킹</button>
+        <button class="rank-tab" onclick="switchRankTab('wealth')">💰 자산 랭킹</button>
+    </div>
+
+    <div id="my-wealth-banner" class="my-max-asset-banner" style="display:none;">
+        <div>
+            <div class="banner-label">🏆 나의 역대 최고 자산</div>
+            <div class="banner-date" id="my-wealth-date">-</div>
+        </div>
+        <div class="banner-value" id="my-wealth-val">0 🟡</div>
+    </div>
+
+    <div id="rank-list"></div>
+    <button class="close-btn" onclick="closePage('rank-page')">닫기</button>
+</div>
 
 <div id="exit-modal" class="full-page" style="z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.85);">
     <div class="login-box" style="border-color:#e74c3c; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
@@ -241,20 +350,19 @@
         <p style="color:#ddd; margin:20px 0; line-height:1.6; font-size:0.9rem;">
             정말로 게임을 종료하시겠습니까?<br>
             <span style="color:#4cd137; font-size:0.8rem; font-weight:bold;">
-                (현재 내용은 서버에 자동 저장되며,<br>다시 로그인하면 불러올 수 있습니다)
+                (현재 내용은 서버에 자동 저장됩니다)
             </span>
         </p>
         <div style="display:flex; gap:10px; width:100%;">
-            <button class="login-btn" onclick="realExit()" style="background:#e74c3c; color:white; width:50%;">종료</button>
-            <button class="login-btn" onclick="cancelExit()" style="background:#444; color:white; width:50%;">취소</button>
+            <button class="btn-action" onclick="realExit()" style="background:#e74c3c; color:white; flex:1;">종료</button>
+            <button class="btn-action" onclick="cancelExit()" style="background:#444; color:white; flex:1;">취소</button>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
-    // ⭐ GoogleAuthProvider, signInWithPopup 추가됨
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -267,23 +375,34 @@
     };
 
     let app, db, auth;
-    try { 
-        app = initializeApp(firebaseConfig); 
-        db = getFirestore(app); 
-        auth = getAuth(app);
-    } catch(e) { console.log("Firebase Init Fail", e); }
+    try { app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app); } catch(e) {}
 
-    const gradeInfo = { "일반": { color: "#b2bec3", mod: 1.0, rank: 0, prob: 45.0, weight: 1.0 }, "매직": { color: "#00cec9", mod: 0.85, rank: 1, prob: 25.0, weight: 2.0 }, "레어": { color: "#a29bfe", mod: 0.7, rank: 2, prob: 15.0, weight: 3.0 }, "에픽": { color: "#fab1a0", mod: 0.5, rank: 3, prob: 10.0, weight: 4.0 }, "레전더리": { color: "#ff7675", mod: 0.3, rank: 4, prob: 5.0, weight: 15.0 } };
+    const gradeInfo = { 
+        "레전더리": { color: "#ffd700", mod: 0.3, rank: 4, prob: 5.0, weight: 15.0 },
+        "에픽": { color: "#ff4757", mod: 0.5, rank: 3, prob: 10.0, weight: 4.0 },
+        "레어": { color: "#a29bfe", mod: 0.7, rank: 2, prob: 15.0, weight: 3.0 },
+        "매직": { color: "#00cec9", mod: 0.85, rank: 1, prob: 25.0, weight: 2.0 },
+        "일반": { color: "#b2bec3", mod: 1.0, rank: 0, prob: 45.0, weight: 1.0 }
+    };
+
+    function formatProb(num) {
+        if (num < 0.0000001) return num.toFixed(10); 
+        if (num < 0.001) return num.toFixed(8);
+        return parseFloat(num);
+    }
+
     function getTier(rarity) {
         const val = parseFloat(rarity);
         if (val > 30.0) return { text: "F", color: "#636e72" };
         if (val > 15.0) return { text: "C", color: "#00cec9" };
         if (val > 5.0)  return { text: "B", color: "#a29bfe" };
         if (val > 1.0)  return { text: "A", color: "#fab1a0" };
-        if (val > 0.1)  return { text: "S", color: "#ff7675" };
-        if (val > 0.01) return { text: "SS", color: "#ffeaa7" };
-        return { text: "SSS", color: "#fdcb6e" };
+        if (val > 0.1)  return { text: "S", color: "#ff4757" };
+        if (val > 0.01) return { text: "SS", color: "#ffd700" };
+        if (val > 0.000001) return { text: "SSS", color: "#fdcb6e" };
+        return { text: "EX", color: "EX" }; 
     }
+
     const evoPaths = [
         { name: "보석", grades: ["레전더리"], stages: ["📿", "💍", "👑", "✨"] }, { name: "기상", grades: ["일반", "매직"], stages: ["☀️", "🌤️", "🌦️", "🌈"] }, { name: "도시", grades: ["매직", "레어"], stages: ["🧱", "🏠", "🏢", "🏙️"] }, { name: "의류", grades: ["일반", "매직"], stages: ["🧶", "👕", "👔", "🕴️"] }, { name: "심해", grades: ["에픽", "레전더리"], stages: ["🐚", "🦀", "🐙", "🦈"] },
         { name: "사무", grades: ["매직", "레어"], stages: ["📎", "📂", "🖥️", "🏢"] }, { name: "식사", grades: ["일반", "매직"], stages: ["🥣", "🥗", "🍝", "🍗"] }, { name: "미래", grades: ["에픽", "레전더리"], stages: ["🔋", "⚡", "🤖", "🛸"] }, { name: "연금술", grades: ["레어", "에픽"], stages: ["🧪", "⚗️", "🔮", "🧙"] }, { name: "유적", grades: ["매직", "레어"], stages: ["⛏️", "🔦", "🦴", "🏺"] },
@@ -312,29 +431,58 @@
     window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null }));
     window.book = {}; window.claimedRewards = [];
     
+    window.maxGold = 10000;
+    window.maxGoldDate = Date.now();
+    
     let saveTimeout = null;
-    let cachedRankData = null;
+    let cachedRarityRank = null;
+    let cachedWealthRank = null;
     let lastRankFetch = 0;
     
+    window.currentRankTab = 'rarity';
+
     let isJoinMode = false;
     window.currentUserUid = null;
 
-    window.addLog = (msg) => { const lb = document.getElementById('game-log'); const d = document.createElement('div'); d.innerText = `> ${msg}`; lb.appendChild(d); lb.scrollTop = lb.scrollHeight; };
+    window.addLog = (msg) => { 
+        const lb = document.getElementById('game-log'); 
+        const d = document.createElement('div'); 
+        d.innerText = `> ${msg}`; 
+        lb.appendChild(d); 
+        lb.scrollTop = lb.scrollHeight; 
+    };
     window.vibrate = () => { if(navigator.vibrate) navigator.vibrate(10); };
     
+    // ⭐ 타이머 업데이트
+    function updateResetTimer() {
+        const now = new Date();
+        const kstNow = new Date(now.getTime() + (9 * 60 * 60 * 1000));
+        const day = kstNow.getUTCDay();
+        const daysUntilMonday = day === 0 ? 1 : 8 - day;
+        
+        const target = new Date(kstNow);
+        target.setUTCDate(kstNow.getUTCDate() + daysUntilMonday);
+        target.setUTCHours(0,0,0,0);
+        
+        const diffMs = target.getTime() - kstNow.getTime();
+        const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const diffDays = Math.floor(diffHrs / 24);
+        const remainHrs = diffHrs % 24;
+        
+        const el = document.getElementById('reset-timer');
+        el.innerText = `주간랭킹 갱신까지 ${diffDays}일 ${remainHrs}시간 ${diffMins}분 남음`;
+    }
+    setInterval(updateResetTimer, 60000); 
+
     function isGameModalOpen() {
         return Array.from(document.querySelectorAll('.full-page')).some(el => 
             el.id !== 'exit-modal' && el.style.display === 'block'
         );
     }
     
-    window.realExit = () => {
-        window.logout(); 
-    };
-
-    window.cancelExit = () => {
-        document.getElementById('exit-modal').style.display = 'none';
-    };
+    window.realExit = () => { window.logout(); };
+    window.cancelExit = () => { document.getElementById('exit-modal').style.display = 'none'; };
 
     window.addEventListener('popstate', () => {
         const exitModal = document.getElementById('exit-modal');
@@ -354,7 +502,21 @@
         history.pushState({ main: true }, '', ''); 
         exitModal.style.display = 'flex';
     });
-    
+
+    function checkBookAlert() {
+        if(!window.book) return;
+        const alertDot = document.getElementById('book-alert');
+        let hasReward = false;
+        evoPaths.forEach(path => {
+            const level = window.book[path.name] || 0;
+            if(level >= 4 && !window.claimedRewards.includes(path.name)) {
+                hasReward = true;
+            }
+        });
+        if(hasReward) alertDot.style.display = 'block';
+        else alertDot.style.display = 'none';
+    }
+
     window.closePage = (id) => { 
         if (history.state && history.state.modal) {
             history.back();
@@ -368,10 +530,12 @@
     function updateBook(pathName, level) {
         if(!window.book) window.book = {};
         const stageIdx = Math.min(4, Math.floor(level / 5) + 1); 
-        
         if (!window.book[pathName] || window.book[pathName] < stageIdx) {
             window.book[pathName] = stageIdx;
-            if(stageIdx === 4) addLog(`🎉 [${pathName}] 도감 완성! (보상 수령 가능)`);
+            if(stageIdx === 4) {
+                addLog(`🎉 [${pathName}] 도감 완성! (보상 수령 가능)`);
+                checkBookAlert();
+            }
         }
     }
 
@@ -380,6 +544,24 @@
         document.getElementById('my-id-label').innerText = `ID: ${window.nickname || "GUEST"}`;
         document.getElementById('inv-total-gold').innerText = window.gold.toLocaleString() + " 🟡";
         
+        // ⭐ 최고 자산 갱신
+        if (window.gold > window.maxGold) {
+            window.maxGold = window.gold;
+            window.maxGoldDate = Date.now();
+            saveGame();
+        }
+        
+        if(window.myHistory.length > 0) {
+             const best = window.myHistory[0];
+             document.getElementById('my-best-icon').innerText = best.emoji;
+             document.getElementById('my-best-info').innerText = `${best.grade} +${best.lvl}`;
+             document.getElementById('my-best-info').style.color = gradeInfo[best.grade].color;
+        } else {
+             document.getElementById('my-best-icon').innerText = "👻";
+             document.getElementById('my-best-info').innerText = "기록 없음";
+             document.getElementById('my-best-info').style.color = "#aaa";
+        }
+
         if(window.currentEmoji && !window.currentEmoji.gone) {
              const info = gradeInfo[window.currentEmoji.grade];
              document.getElementById('inv-current-emoji').innerText = window.currentEmoji.stages[Math.min(3, Math.floor(window.currentEmoji.level / 5))];
@@ -388,13 +570,6 @@
         } else {
              document.getElementById('inv-current-emoji').innerText = "🔒";
              document.getElementById('inv-current-name').innerText = "없음";
-        }
-        
-        if(window.myHistory.length > 0) {
-             const best = window.myHistory[0];
-             document.getElementById('my-rank-icon').innerText = best.emoji;
-        } else {
-             document.getElementById('my-rank-icon').innerText = "";
         }
 
         const evoBtn = document.getElementById('btn-evolve'), buyBtn = document.getElementById('btn-buy'), sellBtn = document.getElementById('btn-sell'), geneBtn = document.getElementById('btn-gene');
@@ -408,7 +583,7 @@
             document.getElementById('overlay-grade').innerText = window.currentEmoji.grade; document.getElementById('overlay-grade').style.color = info.color;
             document.getElementById('overlay-name-level').innerText = `+${lvl}`; 
             document.getElementById('overlay-grade').className = document.getElementById('overlay-name-level').className = (window.currentEmoji.grade === "레전더리") ? "glow-legendary" : "";
-            
+
             const mainEmoji = document.getElementById('main-emoji'), dL = document.getElementById('deco-l'), dR = document.getElementById('deco-r');
             mainEmoji.innerText = window.currentEmoji.stages[Math.min(3, Math.floor(lvl / 5))];
             
@@ -423,11 +598,16 @@
             }
             document.getElementById('st-value').innerText = window.currentEmoji.value.toLocaleString(); 
             document.getElementById('st-grade').innerText = window.currentEmoji.grade;
+            document.getElementById('st-grade').style.color = info.color;
             document.getElementById('st-gene').innerText = window.currentEmoji.mutated ? "발현" : (window.currentEmoji.gene ? "보유" : "없음"); 
             
             const tier = getTier(window.currentEmoji.rarity);
-            document.getElementById('st-rarity').innerHTML = `${tier.text} <small style="font-size:0.5rem; opacity:0.7">(${window.currentEmoji.rarity}%)</small>`;
-            document.getElementById('st-rarity').style.color = tier.color;
+            if(tier.color === "EX") {
+                document.getElementById('st-rarity').innerHTML = `<span class="tier-ex-gradient">EX</span> <small style="font-size:0.5rem; opacity:0.7">(${formatProb(window.currentEmoji.rarity)}%)</small>`;
+            } else {
+                document.getElementById('st-rarity').innerHTML = `${tier.text} <small style="font-size:0.5rem; opacity:0.7">(${formatProb(window.currentEmoji.rarity)}%)</small>`;
+                document.getElementById('st-rarity').style.color = tier.color;
+            }
             
             document.getElementById('seg-s').style.width = s + "%"; document.getElementById('seg-m').style.width = m + "%"; document.getElementById('seg-b').style.width = b + "%";
             document.getElementById('val-s').innerText = Math.floor(s) + "%"; document.getElementById('val-b').innerText = Math.floor(b) + "%";
@@ -437,6 +617,7 @@
             document.getElementById('evolve-cost').innerText = "-"; buyBtn.disabled = false; evoBtn.disabled = sellBtn.disabled = geneBtn.disabled = true;
             document.querySelectorAll('.gauge-seg').forEach(el => el.style.width = "0%"); ["st-value", "st-grade", "st-rarity"].forEach(id => document.getElementById(id).innerText = "-");
         }
+        checkBookAlert();
     };
 
     window.fetchNew = () => { 
@@ -474,11 +655,8 @@
             if (Math.random() * 100 < s / (s+m) * 100) { 
                 window.currentEmoji.level++; 
                 let improveFactor = s / 100;
-                if(Math.random() < 0.1) {
-                    improveFactor *= 0.8; 
-                    addLog(`⚡ 대성공! (희귀도 대폭 상승)`);
-                }
-                window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * improveFactor).toFixed(8); 
+                if(Math.random() < 0.1) { improveFactor *= 0.8; addLog(`⚡ 대성공! (희귀도 대폭 상승)`); }
+                window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * improveFactor).toFixed(9); 
                 addLog(`✨ 강화 성공! +${window.currentEmoji.level}`); 
             }
             else { addLog("💨 상태 유지"); }
@@ -489,19 +667,22 @@
     window.mutateGene = () => {
         if (!window.currentEmoji || window.gold < 500000) return; 
         window.gold -= 500000;
+        let gs = Object.keys(gradeInfo).reverse();
+        let i = gs.indexOf(window.currentEmoji.grade);
         
-        let gs = Object.keys(gradeInfo), i = gs.indexOf(window.currentEmoji.grade);
+        const gradeOrder = ["일반", "매직", "레어", "에픽", "레전더리"];
+        const currentIdx = gradeOrder.indexOf(window.currentEmoji.grade);
         
-        if (i < gs.length - 1 && Math.random() < 0.6) { 
-            window.currentEmoji.grade = gs[i+1]; 
+        if (currentIdx < 4 && Math.random() < 0.6) { 
+            window.currentEmoji.grade = gradeOrder[currentIdx+1]; 
             window.currentEmoji.mutated = true; 
-            window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * 0.5).toFixed(8); 
+            window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * 0.5).toFixed(9); 
             addLog(`🔮 변이 성공! [${window.currentEmoji.grade}] (가치 2배 상승)`); 
         }
         else { 
             window.currentEmoji.gene = false; 
-            window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * 0.9).toFixed(8);
-            addLog(`🔮 변이 실패.. (하지만 유전자가 정제되어 희귀도 상승)`); 
+            window.currentEmoji.rarity = (parseFloat(window.currentEmoji.rarity) * 0.9).toFixed(9);
+            addLog(`🔮 변이 실패.. (유전자 소멸, 희귀도 상승)`); 
         } 
         updateUI(); saveGame();
     };
@@ -515,10 +696,9 @@
 
     window.openInventory = () => { 
         if(isGameModalOpen()) return;
-        history.pushState({ modal: true }, '', ''); 
-        const page = document.getElementById('inv-page');
-        page.style.display = 'block'; page.scrollTop = 0;
-        updateUI(); renderInventory(); 
+        history.pushState({ modal: true }, '', '');
+        document.getElementById('inv-page').style.display = 'block';
+        renderInventory(); 
     };
 
     function renderInventory() {
@@ -575,14 +755,12 @@
     window.openBook = () => { 
         if(isGameModalOpen()) return;
         history.pushState({ modal: true }, '', '');
-        const page = document.getElementById('book-page');
-        page.style.display = 'block'; page.scrollTop = 0;
+        document.getElementById('book-page').style.display = 'block';
         
-        let tableHtml = `<table class="rate-table"><thead><tr><th>등급</th><th>출현 확률</th><th>색상</th></tr></thead><tbody>`;
+        let gradeHtml = "";
         const grades = ["레전더리", "에픽", "레어", "매직", "일반"];
-        grades.forEach(g => { const info = gradeInfo[g]; tableHtml += `<tr><td style="color:${info.color}; font-weight:bold;">${g}</td><td>${info.prob}%</td><td><div style="width:12px; height:12px; background:${info.color}; margin:0 auto; border-radius:50%;"></div></td></tr>`; });
-        tableHtml += `</tbody></table>`;
-        document.getElementById('rate-table-container').innerHTML = tableHtml;
+        grades.forEach(g => { const info = gradeInfo[g]; gradeHtml += `<tr><td style="color:${info.color}; font-weight:bold;">${g}</td><td>${info.prob}%</td></tr>`; });
+        document.getElementById('grade-rate-table').innerHTML = gradeHtml;
 
         const grid = document.getElementById('book-list');
         grid.innerHTML = "";
@@ -590,53 +768,50 @@
         if(!window.book) window.book = {};
         if(!window.claimedRewards) window.claimedRewards = [];
 
-        evoPaths.forEach(path => {
+        const gradeWeight = { "레전더리": 5, "에픽": 4, "레어": 3, "매직": 2, "일반": 1 };
+        const sortedPaths = [...evoPaths].sort((a, b) => {
+            const getMaxWeight = (path) => Math.max(...path.grades.map(g => gradeWeight[g]));
+            return getMaxWeight(b) - getMaxWeight(a);
+        });
+
+        sortedPaths.forEach(path => {
             const myLevel = window.book[path.name] || 0; 
             const isDiscovered = myLevel > 0;
             const isCompleted = myLevel >= 4;
             const isClaimed = window.claimedRewards.includes(path.name);
-            const info = gradeInfo[path.grades[0]]; 
+            const maxGrade = path.grades.reduce((prev, curr) => gradeWeight[curr] > gradeWeight[prev] ? curr : prev, path.grades[0]);
+            const info = gradeInfo[maxGrade];
+            const isLegendary = path.grades.includes("레전더리");
+            const legendaryClass = isLegendary ? "book-legendary" : "";
 
             const card = document.createElement('div');
-            card.className = "book-card-mini"; 
+            card.className = `book-card-mini ${legendaryClass}`; 
             card.style.borderColor = isDiscovered ? info.color : '#333';
             
             if(isCompleted) {
-                card.className += " book-mini-completed";
+                card.className += " book-completed";
                 card.onclick = () => handleReward(path.name);
-                if(isClaimed) { } else {
-                     card.innerHTML += `<div class="mini-reward-dot" title="보상 받기"></div>`;
-                }
+                if(!isClaimed) card.innerHTML += `<div class="mini-reward-dot"></div>`;
             }
 
-            let headerHtml = `<div class="book-mini-header" style="color:${isDiscovered ? '#fff' : '#555'}">${isDiscovered ? path.name : '???'}</div>`;
-
+            let headerHtml = `<div class="book-mini-header" style="font-size:0.55rem; color:${isDiscovered ? '#fff' : '#444'}">${isDiscovered ? path.name : '???'}</div>`;
             let slotsHtml = `<div class="book-mini-slots">`;
             for(let i=0; i<4; i++) {
                 let content = "";
                 if(isDiscovered) {
-                    if(i < myLevel) {
-                        content = `<span class="inv-emoji">${path.stages[i]}</span>`;
-                    } else {
-                        content = `<span class="inv-emoji silhouette">${path.stages[i]}</span>`;
-                    }
-                } else {
-                    content = `<span class="hidden-mark">?</span>`;
-                }
+                    if(i < myLevel) content = `<span class="inv-emoji">${path.stages[i]}</span>`;
+                    else content = `<span class="inv-emoji silhouette">${path.stages[i]}</span>`;
+                } else content = `<span class="hidden-mark">?</span>`;
                 slotsHtml += `<div class="book-mini-slot">${content}</div>`;
             }
             slotsHtml += `</div>`;
-
             card.innerHTML += headerHtml + slotsHtml;
             grid.appendChild(card);
         });
     };
 
     function handleReward(themeName) {
-        if(window.claimedRewards.includes(themeName)) {
-            alert("이미 보상을 수령했습니다.");
-            return;
-        }
+        if(window.claimedRewards.includes(themeName)) { alert("이미 보상을 수령했습니다."); return; }
         window.gold += 50000000;
         window.claimedRewards.push(themeName);
         addLog(`💰 [${themeName}] 도감 보상 5,000만 골드 지급!`);
@@ -645,77 +820,221 @@
         alert(`축하합니다! [${themeName}] 진화 완성 보상으로\n50,000,000 골드가 지급되었습니다!`);
     }
 
-    async function syncGlobal() { 
+    function formatDateSimple(ts) {
+        if(!ts) return "-";
+        const d = new Date(ts);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}.${m}.${day}`;
+    }
+
+    // ⭐ 메인 버튼: 희귀도(Rarity) 1위 표시 로직
+    async function fetchGlobalLeader() {
         if(!db) return;
-        try { 
-            let all = [];
-            // 캐시 1분 쿨타임
-            if (!cachedRankData || (Date.now() - lastRankFetch > 60000)) {
-                let snap = await getDocs(collection(db, "users")); 
-                snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
-                cachedRankData = all; 
-                lastRankFetch = Date.now(); 
-            } else {
-                all = cachedRankData; 
-            }
-
-            const bests = all.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob); 
-            const worldBtnVal = document.getElementById('world-best-info');
-            const worldBtnIcon = document.getElementById('world-best-icon');
-            if (bests.length > 0) { let t = bests[0]; worldBtnVal.innerHTML = `<span style="color:#fff">${t.owner}</span> <span style="font-size:0.7rem; color:#aaa">(${t.grade})</span>`; worldBtnIcon.innerText = t.emoji; } else { worldBtnVal.innerText = "기록 없음"; worldBtnIcon.innerText = "👑"; }
+        try {
+            const q = query(collection(db, "users"), limit(100)); 
+            const snap = await getDocs(q); 
             
-            const rankListEl = document.getElementById('rank-list');
-            if (rankListEl.offsetParent !== null) {
-                const listData = bests.slice(0, 50);
-                rankListEl.innerHTML = renderRanking(listData);
-            }
+            let all = [];
+            snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
+            
+            const best = all.sort((a, b) => a.prob - b.prob)[0];
 
+            if(best) {
+                document.getElementById('world-best-info').innerHTML = `🏆 1위: ${best.owner}`;
+                document.getElementById('world-best-icon').innerText = best.emoji;
+            } else {
+                document.getElementById('world-best-info').innerText = "기록 없음";
+            }
+        } catch(e) { console.log(e); }
+    }
+
+    async function syncGlobal(tabType) { 
+        if(!db) return;
+        try {
+            if (tabType === 'rarity') {
+                if (!cachedRarityRank || (Date.now() - lastRankFetch > 60000)) { 
+                    const q = query(collection(db, "users"), limit(100)); 
+                    const snap = await getDocs(q); 
+                    
+                    let all = [];
+                    snap.forEach(d => { if(d.data().h) all = all.concat(d.data().h); }); 
+                    
+                    cachedRarityRank = all.sort((a, b) => a.prob - b.prob).slice(0, 50);
+                    lastRankFetch = Date.now();
+                }
+
+                let displayList = [...cachedRarityRank];
+                if (window.myHistory.length > 0) {
+                    const myBest = window.myHistory[0];
+                    displayList = displayList.filter(item => item.owner !== window.nickname);
+                    displayList.push(myBest);
+                    displayList.sort((a, b) => a.prob - b.prob);
+                }
+                
+                const rankListEl = document.getElementById('rank-list');
+                if (rankListEl.offsetParent !== null) {
+                    rankListEl.innerHTML = renderRanking(displayList.slice(0, 50), 'rarity');
+                }
+
+            } else if (tabType === 'wealth') {
+                if (!cachedWealthRank || (Date.now() - lastRankFetch > 60000)) {
+                    // ⭐ 자산 랭킹: 기존 유저 호환성을 위해 'g' (현재 골드) 기준으로 정렬
+                    try {
+                        const q = query(collection(db, "users"), orderBy("g", "desc"), limit(50));
+                        const snap = await getDocs(q);
+                        let all = [];
+                        snap.forEach(d => {
+                            const data = d.data();
+                            const val = data.max_gold || data.g || 0; 
+                            all.push({ owner: data.nickname, val: val, date: data.max_gold_date || Date.now() });
+                        });
+                        cachedWealthRank = all;
+                        lastRankFetch = Date.now();
+                    } catch (err) {
+                        console.warn("Index Error caught, switching to simple query...", err);
+                        const q = query(collection(db, "users"), limit(100));
+                        const snap = await getDocs(q);
+                        let all = [];
+                        snap.forEach(d => {
+                            const data = d.data();
+                            const val = data.max_gold || data.g || 0;
+                            all.push({ owner: data.nickname, val: val, date: data.max_gold_date || Date.now() });
+                        });
+                        cachedWealthRank = all.sort((a,b) => b.val - a.val).slice(0,50);
+                        lastRankFetch = Date.now();
+                    }
+                }
+                
+                let displayList = [...cachedWealthRank];
+                displayList = displayList.filter(item => item.owner !== window.nickname);
+                displayList.push({ owner: window.nickname, val: window.maxGold, date: window.maxGoldDate });
+                displayList.sort((a, b) => b.val - a.val);
+                
+                const rankListEl = document.getElementById('rank-list');
+                if (rankListEl.offsetParent !== null) {
+                    rankListEl.innerHTML = renderRanking(displayList.slice(0, 50), 'wealth');
+                }
+            }
         } catch(e) { console.log(e); } 
     }
 
-    function renderRanking(list) {
+    function renderRanking(list, type) {
+        if (!list || list.length === 0) return "<div style='text-align:center; padding:20px; color:#555;'>기록이 없습니다.</div>";
+
         return list.map((c, i) => {
-            const rk = i + 1; const col = gradeInfo[c.grade]?.color; let glw = rk === 1 ? 'rank-glow-1' : '';
-            const tier = getTier(c.prob);
-            return `<div class="rank-card-slim ${glw}"><div class="rank-block">#${rk}</div><div class="rank-block" style="font-size:1.6rem;">${c.emoji}</div><div class="rank-info-block"><div style="font-weight:900;">${c.owner}</div><div style="color:${col}; font-size:0.6rem;">${c.grade} +${c.lvl} | <span class="tier-badge" style="color:${tier.color}">${tier.text}</span>${c.prob}%</div><div style="font-size:0.55rem; color:#ffd700;">${c.val.toLocaleString()} 🟡</div></div></div>`;
-        }).join('') || "<div style='text-align:center; padding:20px; color:#555;'>기록 없음</div>";
+            const rk = i + 1; 
+            let glw = '';
+            if (rk === 1) glw = 'rank-glow-1'; else if (rk === 2) glw = 'rank-glow-2'; else if (rk === 3) glw = 'rank-glow-3';
+            
+            const dateStr = formatDateSimple(c.date);
+
+            if (type === 'wealth') {
+                // ⭐ 자산 랭킹 레이아웃 (1:2:3 비율, 전체 숫자 표기)
+                return `
+                <div class="rank-card-wealth ${glw}">
+                    <div class="rank-col-rank">#${rk}</div>
+                    <div class="rank-col-info" style="border-right:1px solid #222; justify-content:center; align-items:center;">
+                        <div class="rank-user" style="font-size:0.9rem;">${c.owner}</div>
+                    </div>
+                    <div class="rank-col-info" style="align-items:flex-end; padding-right:15px;">
+                        <div class="rank-date" style="top:5px; right:5px;">${dateStr}</div>
+                        <div style="font-size:0.55rem; color:#888; margin-top:5px;">최고 자산</div>
+                        <div class="rank-gold" style="font-size:0.8rem; font-weight:bold; color:#ffd700;">${c.val.toLocaleString()} 🟡</div>
+                    </div>
+                </div>`;
+            } else {
+                const col = gradeInfo[c.grade]?.color; 
+                const tier = getTier(c.prob);
+                let badgeHtml = "";
+                let probColor = col;
+
+                if (tier.color === "EX") {
+                    badgeHtml = `<span class="tier-badge tier-badge-ex"><span class="tier-ex-gradient">EX</span></span>`;
+                    probColor = "#a29bfe";
+                } else {
+                    badgeHtml = `<span class="tier-badge" style="color:${tier.color}; border-color:${tier.color}">${tier.text}</span>`;
+                }
+
+                return `
+                <div class="rank-card-styled ${glw}">
+                    <div class="rank-col-rank">#${rk}</div>
+                    <div class="rank-col-icon">${c.emoji}</div>
+                    <div class="rank-col-info">
+                        <div class="rank-date">${dateStr}</div>
+                        <div class="rank-user">${c.owner}</div>
+                        <div class="rank-detail" style="color:${col}">${c.grade} +${c.lvl}</div>
+                        <div class="rank-meta-row">
+                            ${badgeHtml}
+                            <span class="rank-prob-thin" style="color:${probColor};">${formatProb(c.prob)}%</span>
+                        </div>
+                        <div class="rank-gold">${c.val.toLocaleString()} 🟡</div>
+                    </div>
+                </div>`;
+            }
+        }).join('');
+    }
+    
+    window.switchRankTab = (tab) => {
+        window.currentRankTab = tab;
+        document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
+        if(tab === 'rarity') document.querySelectorAll('.rank-tab')[0].classList.add('active');
+        else document.querySelectorAll('.rank-tab')[1].classList.add('active');
+        
+        syncGlobal(tab);
     }
     
     window.openMyHistory = () => { 
         if(isGameModalOpen()) return;
-        history.pushState({ modal: true }, '', ''); 
-        const page = document.getElementById('rank-page');
-        page.style.display = 'block'; page.scrollTop = 0;
-        document.getElementById('rank-title').innerText = "📜 나의 명예의 전당"; document.getElementById('rank-list').innerHTML = renderRanking(window.myHistory); 
+        history.pushState({ modal: true }, '', '');
+        document.getElementById('rank-page').style.display = 'block';
+        document.getElementById('rank-title').innerText = "📜 나의 명예의 전당"; 
+        
+        // ⭐ 개인 기록에서는 타이머 숨김
+        document.getElementById('reset-timer').style.display = 'none';
+        
+        document.getElementById('rank-tabs-container').style.display = 'none';
+        document.getElementById('my-wealth-banner').style.display = 'flex';
+        
+        document.getElementById('my-wealth-val').innerText = window.maxGold.toLocaleString() + " 🟡";
+        document.getElementById('my-wealth-date').innerText = formatDateSimple(window.maxGoldDate);
+
+        document.getElementById('rank-list').innerHTML = renderRanking(window.myHistory, 'rarity'); 
     };
     
     window.openGlobalRanking = async () => { 
         if(isGameModalOpen()) return;
         history.pushState({ modal: true }, '', '');
-        const page = document.getElementById('rank-page');
-        page.style.display = 'block'; page.scrollTop = 0;
+        document.getElementById('rank-page').style.display = 'block';
         document.getElementById('rank-title').innerText = "🌏 글로벌 명예의 전당"; 
         
-        if (cachedRankData) {
-             const bests = cachedRankData.filter(c => c && c.prob).sort((a, b) => a.prob - b.prob).slice(0, 50);
-             document.getElementById('rank-list').innerHTML = renderRanking(bests);
-        } else {
-             document.getElementById('rank-list').innerHTML = "데이터 로딩 중..."; 
-        }
+        // ⭐ 글로벌 랭킹에서는 타이머 표시
+        document.getElementById('reset-timer').style.display = 'inline-block';
+
+        document.getElementById('rank-tabs-container').style.display = 'flex';
+        document.getElementById('my-wealth-banner').style.display = 'none';
+        
+        updateResetTimer(); 
+        document.getElementById('rank-list').innerHTML = "<div style='text-align:center; padding:20px; color:#888;'>데이터 불러오는 중...</div>";
         
         if(!db) { document.getElementById('rank-list').innerText = "서버 연결 안됨"; return; }
-        await syncGlobal();
+        await syncGlobal(window.currentRankTab); 
     };
     
     async function saveGame() { 
         if(window.currentUserUid) {
+            const bestProb = window.myHistory.length > 0 ? Math.min(...window.myHistory.map(h => h.prob)) : 100;
             const dataToSave = { 
                 nickname: window.nickname, 
                 g: window.gold, c: window.currentEmoji, h: window.myHistory, i: window.inventory,
-                b: window.book, r: window.claimedRewards 
+                b: window.book, r: window.claimedRewards,
+                max_gold: window.maxGold,
+                max_gold_date: window.maxGoldDate,
+                last_active: Date.now(),
+                best_prob: bestProb 
             };
             localStorage.setItem('catSave_' + window.nickname, JSON.stringify(dataToSave)); 
-            
             if(db) { 
                 if(saveTimeout) clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(async () => {
@@ -729,44 +1048,22 @@
         if(!db) return false;
         try {
             const q = query(collection(db, "users"), where("nickname", "==", nick));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty;
-        } catch(e) {
-            console.log("Nick Check Error", e);
-            return false;
-        }
+            const snap = await getDocs(q);
+            return !snap.empty;
+        } catch(e) { return false; }
     }
 
-    // ⭐ 구글 로그인 함수 추가
     window.googleLogin = async () => {
         const provider = new GoogleAuthProvider();
-        const msg = document.getElementById('auth-msg');
-        msg.innerText = "Google 로그인 시도 중...";
-        
-        try {
-            const result = await signInWithPopup(auth, provider);
-            // 성공하면 onAuthStateChanged가 자동으로 처리함
-        } catch (error) {
-            console.error(error);
-            msg.innerText = "로그인 실패: " + error.message;
-        }
+        document.getElementById('auth-msg').innerText = "Google 로그인 시도 중...";
+        try { await signInWithPopup(auth, provider); } catch (e) { document.getElementById('auth-msg').innerText = "실패: " + e.message; }
     }
 
     window.toggleJoinMode = () => {
         isJoinMode = !isJoinMode;
-        const nickInput = document.getElementById('inp-nick');
-        const actionBtn = document.querySelector('.btn-login');
-        const modeBtn = document.querySelector('.btn-join');
-        
-        if(isJoinMode) {
-            nickInput.style.display = 'block';
-            actionBtn.innerText = "가입 완료";
-            modeBtn.innerText = "로그인으로 돌아가기";
-        } else {
-            nickInput.style.display = 'none';
-            actionBtn.innerText = "이메일 로그인";
-            modeBtn.innerText = "회원가입 (이메일)";
-        }
+        document.getElementById('inp-nick').style.display = isJoinMode ? 'block' : 'none';
+        document.getElementById('btn-auth-action').innerText = isJoinMode ? '가입 완료' : '로그인';
+        document.getElementById('btn-mode-switch').innerText = isJoinMode ? '로그인 모드' : '회원가입';
     };
 
     window.processAuth = async () => {
@@ -775,127 +1072,63 @@
         const nick = document.getElementById('inp-nick').value.trim();
         const msg = document.getElementById('auth-msg');
 
-        if(!email || !pw) { msg.innerText = "이메일과 비밀번호를 입력하세요."; return; }
-
+        if(!email || !pw) { msg.innerText = "정보를 입력하세요."; return; }
         try {
             if(isJoinMode) {
-                // 회원가입
-                if(!nick) { msg.innerText = "닉네임을 입력해주세요."; return; }
-                if(nick.length < 2) { msg.innerText = "닉네임은 2글자 이상이어야 합니다."; return; }
-                
-                msg.innerText = "닉네임 중복 확인 중...";
-                const isDuplicate = await checkNicknameDuplicate(nick);
-                if(isDuplicate) {
-                    msg.innerText = "이미 존재하는 닉네임입니다.";
-                    return;
-                }
-
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pw);
-                const user = userCredential.user;
-                
-                await setDoc(doc(db, "users", user.uid), {
-                    nickname: nick,
-                    g: 10000, h: [], c: null, i: window.inventory, b: {}, r: []
+                if(!nick || nick.length < 2) { msg.innerText = "닉네임 확인 필요"; return; }
+                if(await checkNicknameDuplicate(nick)) { msg.innerText = "중복된 닉네임"; return; }
+                const cred = await createUserWithEmailAndPassword(auth, email, pw);
+                await setDoc(doc(db, "users", cred.user.uid), { 
+                    nickname: nick, g: 10000, h: [], c: null, i: window.inventory, b: {}, r: [],
+                    max_gold: 10000, max_gold_date: Date.now(), last_active: Date.now(), best_prob: 100
                 });
-                
-                msg.innerText = "가입 성공! 접속 중...";
-            } else {
-                // 로그인
-                await signInWithEmailAndPassword(auth, email, pw);
-            }
-        } catch(error) {
-            console.error(error);
-            if(error.code === 'auth/wrong-password') msg.innerText = "비밀번호가 틀렸습니다.";
-            else if(error.code === 'auth/user-not-found') msg.innerText = "없는 이메일입니다.";
-            else if(error.code === 'auth/email-already-in-use') msg.innerText = "이미 사용 중인 이메일입니다.";
-            else if(error.code === 'auth/weak-password') msg.innerText = "비밀번호는 6자 이상이어야 합니다.";
-            else msg.innerText = "오류: " + error.message;
-        }
+                msg.innerText = "가입 성공!";
+            } else { await signInWithEmailAndPassword(auth, email, pw); }
+        } catch(e) { msg.innerText = "오류: " + e.code; }
     };
 
     window.changeNickname = async () => {
-        const newNick = prompt("변경할 닉네임을 입력하세요 (중복 불가):");
+        const newNick = prompt("변경할 닉네임:");
         if(!newNick || newNick.trim().length < 2) return;
-        
-        const targetNick = newNick.trim();
-        if(targetNick === window.nickname) return;
-
-        if(confirm(`'${targetNick}'(으)로 변경하시겠습니까?`)) {
-            const isDuplicate = await checkNicknameDuplicate(targetNick);
-            if(isDuplicate) {
-                alert("이미 누군가 사용 중인 닉네임입니다 😢");
-            } else {
-                const newHistory = window.myHistory.map(h => ({ ...h, owner: targetNick }));
-                
-                window.nickname = targetNick;
-                window.myHistory = newHistory;
-                
-                updateUI();
-                await saveGame(); 
-                
-                if(window.currentUserUid && db) {
-                    await updateDoc(doc(db, "users", window.currentUserUid), { nickname: targetNick });
-                }
-                alert("닉네임 변경 완료!");
-            }
-        }
+        const target = newNick.trim();
+        if(await checkNicknameDuplicate(target)) { alert("이미 존재합니다."); return; }
+        window.nickname = target; window.myHistory.forEach(h => h.owner = target);
+        updateUI(); await saveGame();
+        if(window.currentUserUid) await updateDoc(doc(db, "users", window.currentUserUid), { nickname: target });
+        alert("변경 완료!");
     };
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             window.currentUserUid = user.uid;
             document.getElementById('nick-modal').style.display = 'none';
-            
-            const docRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(docRef);
-            
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                window.nickname = data.nickname || "Unknown"; 
-                window.gold = data.g || 10000;
-                window.currentEmoji = data.c || null;
-                window.myHistory = data.h || [];
-                window.book = data.b || {};
-                window.claimedRewards = data.r || [];
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) {
+                const d = snap.data();
+                window.nickname = d.nickname; window.gold = d.g; window.currentEmoji = d.c;
+                window.myHistory = d.h || []; window.book = d.b || {}; window.claimedRewards = d.r || [];
+                window.inventory = d.i || window.inventory;
                 
-                if(data.i && data.i.length > 5) window.inventory = data.i.slice(0, 5);
-                else window.inventory = data.i || window.inventory;
+                window.maxGold = d.max_gold || d.g || 10000;
+                window.maxGoldDate = d.max_gold_date || Date.now();
+                if (!d.last_active) saveGame(); 
 
-                localStorage.setItem('catSave_' + window.nickname, JSON.stringify(data));
-                
-                addLog(`환영합니다, ${window.nickname}님!`);
-                updateUI();
-                syncGlobal();
+                updateUI(); 
+                fetchGlobalLeader(); 
             } else {
-                // 구글 로그인 첫 접속 시 (DB 없음) -> 기본 데이터 생성
-                // 닉네임 자동 생성 (Player_ + UID 5자리)
-                window.nickname = "Player_" + user.uid.slice(0,5);
-                saveGame();
-                updateUI();
-                addLog("새 계정이 생성되었습니다. 닉네임을 변경해보세요!");
+                window.nickname = "User_" + user.uid.slice(0,4);
+                saveGame(); updateUI();
             }
-        } else {
-            document.getElementById('nick-modal').style.display = 'flex';
-        }
+        } else { document.getElementById('nick-modal').style.display = 'flex'; }
     });
 
-    window.logout = () => { 
-        signOut(auth).then(() => {
-            location.reload(); 
-        });
-    };
-
-    window.resetGame = () => {
-        if(confirm("초기화하시겠습니까? (닉네임, 도감, 랭킹 기록은 유지됩니다)")) {
-            window.gold = 10000; window.currentEmoji = null; 
-            window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null }));
-            saveGame(); updateUI(); addLog("데이터가 초기화되었습니다.");
-        }
-    };
+    window.logout = () => signOut(auth).then(() => location.reload());
+    window.resetGame = () => { if(confirm("초기화하시겠습니까? (닉네임, 도감, 랭킹 기록은 유지됩니다)")) { window.gold = 10000; window.currentEmoji = null; window.inventory = Array(5).fill(null).map((_, i) => ({ unlocked: i < 1, item: null })); saveGame(); updateUI(); addLog("데이터가 초기화되었습니다."); } };
 
     async function init() {
         history.replaceState(null, '', location.href);
         history.pushState({ main: true }, '', '');
+        updateResetTimer();
         updateUI();
     }
     init();
