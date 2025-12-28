@@ -658,7 +658,10 @@
                     </div>`;
                     
                     document.getElementById('seg-s').style.width = s + "%"; document.getElementById('seg-m').style.width = m + "%"; document.getElementById('seg-b').style.width = b + "%";
-                    document.getElementById('val-s').innerText = Math.floor(s) + "%"; document.getElementById('val-b').innerText = Math.floor(b) + "%";
+                    // ✨ 수정: toFixed(2)를 사용하여 소수점 2자리까지 표시 (예: 99.50%, 0.50%)
+document.getElementById('val-s').innerText = s.toFixed(2) + "%"; 
+document.getElementById('val-b').innerText = b.toFixed(2) + "%";
+
                     
                     const tier = getTier(window.currentEmoji.rarity);
                     if(tier.color === "EX") {
