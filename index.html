@@ -316,7 +316,8 @@
             </table>
         </div>
     </div>
-    <div style="font-size:0.8rem; color:#aaa; margin-bottom:10px; text-align:center;">🧬 수집 현황 (등급순 정렬)</div>
+    <div style="font-size:0.8rem; color:#aaa; margin-bottom:2px; text-align:center;">🧬 수집 현황 (등급순 정렬)</div>
+    <div style="font-size:0.6rem; color:#ffd700; margin-bottom:10px; text-align:center; font-weight:bold;">* 일반, 매직 등급은 고진감래.</div>
     <div id="book-list" class="book-compact-grid"></div>
     <button class="close-btn" onclick="closePage('book-page')">닫기</button>
 </div>
@@ -658,10 +659,8 @@
                     </div>`;
                     
                     document.getElementById('seg-s').style.width = s + "%"; document.getElementById('seg-m').style.width = m + "%"; document.getElementById('seg-b').style.width = b + "%";
-                    // ✨ 수정: toFixed(2)를 사용하여 소수점 2자리까지 표시 (예: 99.50%, 0.50%)
-document.getElementById('val-s').innerText = s.toFixed(2) + "%"; 
-document.getElementById('val-b').innerText = b.toFixed(2) + "%";
-
+                    document.getElementById('val-s').innerText = s.toFixed(2) + "%"; 
+                    document.getElementById('val-b').innerText = b.toFixed(2) + "%";
                     
                     const tier = getTier(window.currentEmoji.rarity);
                     if(tier.color === "EX") {
@@ -838,7 +837,7 @@ document.getElementById('val-b').innerText = b.toFixed(2) + "%";
                 let nextRarity = parseFloat(window.currentEmoji.rarity) * improveFactor;
                 if (nextRarity < 1e-15) nextRarity = 1e-15; 
                 
-                window.currentEmoji.rarity = nextRarity.toFixed(20); // 정밀도 높게 저장
+                window.currentEmoji.rarity = nextRarity.toFixed(20); 
                 addLog(`✨ 강화 성공! +${window.currentEmoji.level}`); 
             }
             else { addLog("💨 상태 유지"); }
@@ -1122,17 +1121,19 @@ document.getElementById('val-b').innerText = b.toFixed(2) + "%";
         });
     };
 
+    // ⭐ [수정] 보상 로직 변경: 일반/매직 등급은 5억 지급
     function handleReward(themeName) {
         if(window.claimedRewards.includes(themeName)) { alert("이미 보상을 수령했습니다."); return; }
         
         const pathInfo = evoPaths.find(p => p.name === themeName);
-        let rewardAmount = 50000000; 
+        let rewardAmount = 50000000; // 기본 5천만
         let msg = `축하합니다! [${themeName}] 진화 완성 보상으로\n50,000,000 골드가 지급되었습니다!`;
 
         if(pathInfo) {
+            // 일반 또는 매직 등급이 포함된 루트라면 5억 지급!
             if (pathInfo.grades.includes("일반") || pathInfo.grades.includes("매직")) {
-                rewardAmount = 150000000;
-                msg = `🎉 고진감래! [${themeName}] 완성!\n비효율의 끝에서 기적을 보셨군요!\n보상: 150,000,000 골드 지급!`;
+                rewardAmount = 500000000; // 5억 (0이 8개)
+                msg = `🎉 고진감래! [${themeName}] 완성!\n비효율의 끝에서 기적을 보셨군요!\n보상: 500,000,000 골드 지급!`;
             }
         } else {
             console.warn("Reward path info missing, giving default reward.");
@@ -1157,8 +1158,7 @@ document.getElementById('val-b').innerText = b.toFixed(2) + "%";
     }
 
     async function fetchGlobalLeader() {
-        // [수정됨] 대시보드는 이제 syncGlobal()에서 자동 갱신하므로,
-        // 이 함수는 더 이상 사용하지 않거나 비워둠
+        // 대시보드는 syncGlobal()에서 자동 갱신하므로 비워둠
     }
 
     async function syncGlobal(tabType) { 
@@ -1222,7 +1222,7 @@ document.getElementById('val-b').innerText = b.toFixed(2) + "%";
                 displayList.sort((a, b) => b.val - a.val);
                 
                 const rankListEl = document.getElementById('rank-list');
-                if (rankListEl && rankListEl.offsetParent !== null) {
+                if (rankListEl.offsetParent !== null) {
                     rankListEl.innerHTML = renderRanking(displayList.slice(0, 50), 'wealth');
                 }
             }
