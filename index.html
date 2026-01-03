@@ -1,3 +1,5 @@
+<!-- ⭐ Part 1: HTML 헤드 및 CSS 스타일 -->
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -245,6 +247,7 @@
     </style>
 </head>
 <body>
+<!-- ⭐ Part 2: 메인 화면 UI (로그인, 게임 컨테이너) -->
 <div id="nick-modal">
     <div class="login-box">
         <h2 style="color:#ffd700; margin-top:0;">GAME START</h2>
@@ -341,6 +344,8 @@
         </div>
     </div>
 </div>
+<!-- ⭐ Part 3: 모달 창 (인벤토리, 도감, 랭킹, 경고창) -->
+
 <div id="inv-page" class="full-page">
     <div class="modal-header"><h2 class="modal-title">🎒 인벤토리</h2></div>
     <div class="inv-status-bar" onclick="swapWithMain()">
@@ -603,6 +608,7 @@
         </div>
     </div>
 </div>
+<!-- ⭐ Part 4: 스크립트 시작 (Firebase 설정 및 유틸 함수) -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, query, where, limit, orderBy } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
@@ -816,6 +822,7 @@
             window.book[key] = stageIdx;
         }
     }
+    // ⭐ Part 5: 게임 핵심 로직 및 스크립트 종료
     window.updateUI = function() {
         window.gold = Number(window.gold); 
         
@@ -1065,10 +1072,10 @@
         let r = Math.random() * 100;
         
         if (type === 'premium') {
-            if (r < 10) g = "레전더리";
-            else if (r < 30) g = "에픽";
-            else if (r < 60) g = "레어";
-            else g = "매직";
+            // [수정] 고급 소환: 레어 이상 확정 (매직 제거)
+            if (r < 10) g = "레전더리";      // 10% 유지
+            else if (r < 40) g = "에픽";     // 30%로 상향 (기존 20%)
+            else g = "레어";                 // 60%로 상향 (나머지 전부)
         } else {
             if (r < 5) g = "레전더리";
             else if (r < 15) g = "에픽";
@@ -1418,7 +1425,8 @@
         let gradeHtml = `<tr><th>등급</th><th>🔮 일반</th><th>🌟 고급</th></tr>`;
         const grades = ["레전더리", "에픽", "레어", "매직", "일반"];
         const normalRate = [5, 10, 15, 25, 45];
-        const premiumRate = [10, 20, 30, 40, 0];
+        // [수정] 고급 소환 확률 표기 업데이트 (레어 이상만 등장)
+        const premiumRate = [10, 30, 60, 0, 0]; 
 
         grades.forEach((g, i) => { 
             const info = gradeInfo[g]; 
